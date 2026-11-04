@@ -18,7 +18,7 @@ import numpy as np
 import pandas as pd
 
 
-# PARÁMETROS EDITABLES
+# 1. PARÁMETROS EDITABLES
 
 PRIORIDADES = ("critica", "alta", "media", "baja")
 CATEGORIAS = ("accesos", "aplicaciones", "conectividad", "hardware")
@@ -69,12 +69,14 @@ class Configuracion:
     factor_servicio: float = 1.0
     factor_escalamiento_n1: float = 1.0
     incidente_masivo: int = 0
+    distribucion_llegadas: str = "poisson"
+    distribucion_servicio: str = "triangular"
 
 
 CONFIG = Configuracion()
 
 
-# ENTIDADES Y GENERACIÓN DE DEMANDA
+# 2. ENTIDADES Y GENERACIÓN DE DEMANDA
 
 @dataclass
 class Ticket:
@@ -111,6 +113,8 @@ class Tecnico:
 
 def validar_config(c):
     assert c.dias >= 1 and c.replicas >= 1
+    assert c.distribucion_llegadas in ("poisson", "deterministica")
+    assert c.distribucion_servicio in ("triangular", "fija")
     assert len(c.tasas_horarias) == 10 and all(x >= 0 for x in c.tasas_horarias)
     assert len(c.factores_dia) > 0 and all(x >= 0 for x in c.factores_dia)
     assert len(c.proporcion_categorias) == 4 and abs(sum(c.proporcion_categorias) - 1) < 1e-7
@@ -145,7 +149,8 @@ def generar_tickets(c, semilla):
         pri = prioridad or str(rng.choice(PRIORIDADES, p=probabilidades_prioridad[comp]))
         tiempos = {}
         for equipo, (a, m, b) in c.servicio_triangular.items():
-            tiempos[equipo] = max(0.1, float(rng.triangular(a, m, b)) * c.factor_complejidad[comp] * c.factor_servicio)
+            valor = float(rng.triangular(a, m, b)) if c.distribucion_servicio == "triangular" else float(m)
+            tiempos[equipo] = max(0.1, valor * c.factor_complejidad[comp] * c.factor_servicio)
         tickets.append(Ticket(
             id=len(tickets) + 1, llegada=float(llegada), prioridad=pri,
             categoria=cat, complejidad=comp, servicio=tiempos,
@@ -156,7 +161,8 @@ def generar_tickets(c, semilla):
     for dia in range(c.dias):
         for hora, tasa in enumerate(c.tasas_horarias):
             media = tasa * c.factor_demanda * c.factores_dia[dia % len(c.factores_dia)]
-            for instante in rng.uniform(0, 60, size=rng.poisson(media)):
+            cantidad = int(rng.poisson(media)) if c.distribucion_llegadas == "poisson" else int(round(media))
+            for instante in rng.uniform(0, 60, size=cantidad):
                 crear(dia * MINUTOS_DIA + hora * 60 + instante)
 
     if c.incidente_masivo:
@@ -171,7 +177,7 @@ def generar_tickets(c, semilla):
     return tickets
 
 
-# RELOJ, TURNOS Y CALENDARIO DE EVENTOS
+# 3. RELOJ, TURNOS Y CALENDARIO DE EVENTOS
 
 def esta_de_turno(tecnico, instante):
     minuto = instante % MINUTOS_DIA
@@ -428,7 +434,7 @@ def simular(c, tickets, guardar_traza=False):
     return resumen, detalle, pd.DataFrame(historial), pd.DataFrame(evolucion)
 
 
-# EXPERIMENTOS, MONTE CARLO Y SENSIBILIDAD
+# 4. EXPERIMENTOS, MONTE CARLO Y SENSIBILIDAD
 
 def escenarios(c):
     base = replace(c)
@@ -491,7 +497,44 @@ def sensibilidad(c, replicas):
     return pd.DataFrame(filas)
 
 
-# REPORTES Y GRÁFICOS
+# 5. REPORTES Y GRÁFICOS
+
+
+def desglosar_tickets(detalle, agrupacion, c):
+    horizonte = (c.dias - 1) * MINUTOS_DIA + MINUTOS_ATENCION
+    filas = []
+    if detalle.empty:
+        return pd.DataFrame()
+    for valor, grupo in detalle.groupby(agrupacion, sort=False):
+        def sla(tipo):
+            limite_por_prioridad = c.sla_respuesta if tipo == "respuesta" else c.sla_resolucion
+            columna = "minuto_primera_respuesta" if tipo == "respuesta" else "minuto_cierre"
+            incumple = evaluables = 0
+            for _, t in grupo.iterrows():
+                limite = limite_por_prioridad[t["prioridad"]]
+                if pd.notna(t[columna]):
+                    evaluables += 1
+                    incumple += t[columna] - t["minuto_apertura"] > limite
+                elif horizonte - t["minuto_apertura"] >= limite:
+                    evaluables += 1
+                    incumple += 1
+            return 100 * incumple / evaluables if evaluables else np.nan
+
+        filas.append({
+            agrupacion: valor,
+            "ingresados": len(grupo),
+            "resueltos": int((grupo.estado_final == "resuelto").sum()),
+            "pendientes": int((grupo.estado_final != "resuelto").sum()),
+            "respuesta_media_min": grupo.tiempo_respuesta_min.mean(),
+            "respuesta_p95_min": grupo.tiempo_respuesta_min.quantile(0.95),
+            "resolucion_media_min": grupo.tiempo_resolucion_min.mean(),
+            "resolucion_p95_min": grupo.tiempo_resolucion_min.quantile(0.95),
+            "escaladas": int(grupo.escaladas.sum()),
+            "incumplimiento_respuesta_pct": sla("respuesta"),
+            "incumplimiento_resolucion_pct": sla("resolucion"),
+        })
+    return pd.DataFrame(filas)
+
 
 def graficos(comparacion, evolucion, sens, destino):
     etiquetas = comparacion["escenario"].tolist()
@@ -566,63 +609,53 @@ def pruebas_verificacion():
     print("Verificación: prioridad, FIFO, escalamiento, tiempos y turnos: OK")
 
 
-def main():
-    parser = argparse.ArgumentParser(description="Simulación de tickets de una mesa de ayuda bancaria")
-    parser.add_argument("--replicas", type=int, default=None)
-    parser.add_argument("--dias", type=int, default=None)
-    parser.add_argument("--semilla", type=int, default=None)
-    parser.add_argument("--config", type=Path)
-    parser.add_argument("--exportar-config", action="store_true")
-    parser.add_argument("--solo-base", action="store_true")
-    parser.add_argument("--sin-graficos", action="store_true")
-    parser.add_argument("--probar", action="store_true")
-    parser.add_argument("--salida", type=Path, default=Path("resultados_tickets_banco"))
-    args = parser.parse_args()
+# 6. SALIDA RESUMIDA Y EJECUCIÓN INDEPENDIENTE
 
+def resumen_consola(comparacion, factor="resolucion_p95_min"):
+    columnas = ["escenario", "resolucion_p95_min", "pendientes", "incumplimiento_resolucion_pct", "utilizacion_N1_pct"]
+    print("\nMESA DE AYUDA | COMPARACIÓN DE ESCENARIOS")
+    print("P95 de resolución en minutos; promedios entre réplicas")
+    print(comparacion[columnas].round(1).to_string(index=False))
+    print("\nInterpretar P95 junto con pendientes y SLA; los valores provienen de supuestos.")
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Simulación de tickets bancarios")
+    parser.add_argument("--config", type=Path)
+    parser.add_argument("--dias", type=int)
+    parser.add_argument("--replicas", type=int)
+    parser.add_argument("--semilla", type=int)
+    parser.add_argument("--probar", action="store_true")
+    parser.add_argument("--guardar", type=Path, help="Guardar experimento JSON reutilizable")
+    args = parser.parse_args()
     if args.probar:
         pruebas_verificacion()
         return
-
-    c = replace(CONFIG)
+    c = Configuracion()
     if args.config:
         cambios = json.loads(args.config.read_text(encoding="utf-8"))
         desconocidos = set(cambios) - set(asdict(c))
         if desconocidos:
             parser.error(f"Parámetros desconocidos: {sorted(desconocidos)}")
         c = replace(c, **cambios)
-    for campo in ("replicas", "dias", "semilla"):
-        valor = getattr(args, campo)
-        if valor is not None:
-            setattr(c, campo, valor)
+    for campo in ("dias", "replicas", "semilla"):
+        v = getattr(args, campo)
+        if v is not None:
+            setattr(c, campo, v)
     validar_config(c)
-    args.salida.mkdir(parents=True, exist_ok=True)
-    (args.salida / "configuracion_utilizada.json").write_text(
-        json.dumps(asdict(c), ensure_ascii=False, indent=2), encoding="utf-8")
-    if args.exportar_config:
-        print("Configuración guardada en:", args.salida / "configuracion_utilizada.json")
-        return
-
-    lista = {"Base": c} if args.solo_base else escenarios(c)
-    replicas, comparacion = ejecutar_experimentos(c, lista)
-    base, detalle, eventos, evolucion = simular(c, generar_tickets(c, c.semilla), guardar_traza=True)
-    sens = pd.DataFrame() if args.solo_base else sensibilidad(c, min(c.replicas, 10))
-
-    replicas.to_csv(args.salida / "replicas.csv", index=False, encoding="utf-8-sig")
-    comparacion.to_csv(args.salida / "comparacion_escenarios.csv", index=False, encoding="utf-8-sig")
-    detalle.to_csv(args.salida / "tickets_base.csv", index=False, encoding="utf-8-sig")
-    eventos.to_csv(args.salida / "eventos_base.csv", index=False, encoding="utf-8-sig")
-    evolucion.to_csv(args.salida / "evolucion_colas_base.csv", index=False, encoding="utf-8-sig")
-    sens.to_csv(args.salida / "sensibilidad.csv", index=False, encoding="utf-8-sig")
-    if not args.sin_graficos:
-        graficos(comparacion, evolucion, sens, args.salida)
-
-    columnas = ["escenario", "ingresados", "resueltos", "pendientes",
-                "respuesta_p95_min", "resolucion_p95_min", "incumplimiento_resolucion_pct"]
-    print("\nRESULTADOS PROMEDIO POR ESCENARIO (minutos corridos)")
-    print(comparacion[columnas].round(1).to_string(index=False))
-    print("\nArchivos CSV" + (" y PNG" if not args.sin_graficos else "") + " en:", args.salida.resolve())
-    print("SLA, distribuciones, dotación y tasas son SUPUESTOS EDITABLES, no datos bancarios reales.")
-    print("Los IC95 aproximan la incertidumbre entre réplicas; una corrida no valida el modelo real.")
+    rep, comp = ejecutar_experimentos(c, escenarios(c))
+    resumen_consola(comp)
+    if args.guardar:
+        datos = generar_tickets(c, c.semilla)
+        r, detalle, traza, evolucion = simular(c, datos, guardar_traza=True)
+        paquete = {"formato": "mesa_ayuda_v2", "origen": "sintetico", "configuracion": asdict(c),
+                   "datos_entrada": [asdict(t) for t in generar_tickets(c, c.semilla)],
+                   "resultados": comp.replace({np.nan: None}).to_dict("records"),
+                   "replicas": rep.replace({np.nan: None}).to_dict("records"),
+                   "tickets_resultado": detalle.replace({np.nan: None}).to_dict("records"),
+                   "eventos": traza.to_dict("records"), "evolucion": evolucion.to_dict("records")}
+        args.guardar.write_text(json.dumps(paquete, ensure_ascii=False, indent=2), encoding="utf-8")
+        print("Experimento guardado:", args.guardar)
 
 
 if __name__ == "__main__":
