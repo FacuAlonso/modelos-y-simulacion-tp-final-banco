@@ -90,6 +90,23 @@ def promedio_metricas(filas):
     return {k: float(np.nanmean([f[k] for f in filas])) for k in claves}
 
 
+def margen_ic95(valores):
+    valores = np.asarray(valores, dtype=float)
+    valores = valores[np.isfinite(valores)]
+    if len(valores) < 2:
+        return None
+    t_criticos = {
+        1: 12.706, 2: 4.303, 3: 3.182, 4: 2.776, 5: 2.571,
+        6: 2.447, 7: 2.365, 8: 2.306, 9: 2.262, 10: 2.228,
+        11: 2.201, 12: 2.179, 13: 2.160, 14: 2.145, 15: 2.131,
+        16: 2.120, 17: 2.110, 18: 2.101, 19: 2.093, 20: 2.086,
+        21: 2.080, 22: 2.074, 23: 2.069, 24: 2.064, 25: 2.060,
+        26: 2.056, 27: 2.052, 28: 2.048, 29: 2.045, 30: 2.042,
+    }
+    t = t_criticos.get(len(valores) - 1, 1.96)
+    return float(t * np.std(valores, ddof=1) / math.sqrt(len(valores)))
+
+
 def ejecutar(peticion):
     c = configurar(peticion.get("configuracion", {}))
     tipo = peticion.get("hipotesis", "menos_escalamiento")
@@ -122,12 +139,37 @@ def ejecutar(peticion):
     metrics_base = promedio_metricas(base_filas)
     metrics_alt = promedio_metricas(alt_filas)
     kpi = peticion.get("indicador", "resolucion_p95_min")
-    if kpi not in ("resolucion_p95_min", "respuesta_p95_min", "pendientes", "incumplimiento_resolucion_pct", "cola_maxima"):
+    if kpi not in ("resolucion_p95_min", "resolucion_p95_con_abiertos_min", "respuesta_p95_min",
+                   "pendientes", "incumplimiento_resolucion_pct", "cola_maxima"):
         raise ValueError("Indicador no válido")
     diferencias = np.asarray([x["alternativa"][kpi] - x["base"][kpi] for x in replicas], dtype=float)
     diferencias = diferencias[np.isfinite(diferencias)]
     media_delta = float(np.mean(diferencias)) if len(diferencias) else None
-    margen = float(1.96 * np.std(diferencias, ddof=1) / math.sqrt(len(diferencias))) if len(diferencias) > 1 else None
+    margen = None if entrada_cargada is not None else margen_ic95(diferencias)
+    ic95_inf = media_delta - margen if margen is not None else None
+    ic95_sup = media_delta + margen if margen is not None else None
+    espera_mejora = tipo != "demanda"
+    if entrada_cargada is not None:
+        cambio_esperado = media_delta < 0 if espera_mejora else media_delta > 0
+        estado_validacion = "cumple_lote" if cambio_esperado else (
+            "sin_cambio_lote" if abs(media_delta or 0) < 1e-12 else "no_cumple_lote"
+        )
+        criterio_validacion = "Comparación descriptiva sobre un único lote importado; no permite inferir variabilidad."
+    elif ic95_sup is not None and (
+        (espera_mejora and ic95_sup < 0) or
+        (not espera_mejora and ic95_inf > 0)
+    ):
+        estado_validacion = "sostenida"
+        criterio_validacion = "El IC95% de la diferencia queda del lado esperado para esta hipótesis."
+    elif ic95_inf is not None and (
+        (espera_mejora and ic95_inf > 0) or
+        (not espera_mejora and ic95_sup < 0)
+    ):
+        estado_validacion = "refutada"
+        criterio_validacion = "El IC95% de la diferencia queda del lado contrario al esperado."
+    else:
+        estado_validacion = "no_concluyente"
+        criterio_validacion = "La cantidad de réplicas o la variabilidad no permite distinguir la diferencia de cero."
     paquete = {
         "formato": "mesa_ayuda_v2", "origen": "importado" if entrada_cargada is not None else "sintetico",
         "nombre_fuente": ESTADO["nombre_entrada"], "hipotesis": tipo, "magnitud": cantidad,
@@ -136,8 +178,10 @@ def ejecutar(peticion):
         "evolucion": primera_evolucion, "replicas": replicas,
         "resumen": {"base": metrics_base, "alternativa": metrics_alt},
         "diferencia_pareada": {"promedio": media_delta,
-                               "ic95_inf": media_delta - margen if margen is not None else None,
-                               "ic95_sup": media_delta + margen if margen is not None else None},
+                               "ic95_inf": ic95_inf, "ic95_sup": ic95_sup,
+                               "metodo": "t de Student" if entrada_cargada is None else "sin IC por lote fijo"},
+        "validacion": {"estado": estado_validacion, "criterio": criterio_validacion,
+                       "metodo": "t de Student" if entrada_cargada is None else "sin IC por lote fijo"},
         "advertencias": ["Los datos sintéticos no constituyen evidencia empírica ni entrenamiento validado.",
                          "Las métricas temporales utilizan minutos corridos y P95 solo de tickets resueltos.",
                          "Con datos importados se reutiliza exactamente la misma entrada en todas las réplicas: los IC no estiman variabilidad de demanda."] if entrada_cargada is not None else [
@@ -146,7 +190,8 @@ def ejecutar(peticion):
     }
     ESTADO["paquete"] = limpiar(paquete)
     return {k: ESTADO["paquete"][k] for k in (
-        "resumen", "diferencia_pareada", "indicador", "hipotesis", "magnitud", "advertencias", "origen")}
+        "resumen", "diferencia_pareada", "validacion", "indicador", "hipotesis",
+        "magnitud", "advertencias", "origen", "replicas")}
 
 
 class Servidor(BaseHTTPRequestHandler):
@@ -175,7 +220,7 @@ class Servidor(BaseHTTPRequestHandler):
         elif ruta == "/api/estado":
             p = ESTADO["paquete"]
             self.responder(200, {"cargado": ESTADO["nombre_entrada"],
-                                   "resultado": p and {k: p[k] for k in ("resumen", "diferencia_pareada", "indicador", "advertencias", "origen")}})
+                                   "resultado": p and {k: p.get(k) for k in ("resumen", "diferencia_pareada", "validacion", "indicador", "advertencias", "origen", "replicas")}})
         else:
             self.responder(404, {"error": "No encontrado"})
 
@@ -198,7 +243,7 @@ class Servidor(BaseHTTPRequestHandler):
                 ESTADO["nombre_entrada"] = "Archivo JSON importado"
                 ESTADO["paquete"] = datos if "resumen" in datos else None
                 salida = {"mensaje": f"Cargados {len(datos['datos_entrada'])} tickets",
-                          "resultado": {k: datos.get(k) for k in ("resumen", "diferencia_pareada", "indicador", "advertencias", "origen")} if "resumen" in datos else None,
+                          "resultado": {k: datos.get(k) for k in ("resumen", "diferencia_pareada", "validacion", "indicador", "advertencias", "origen", "replicas")} if "resumen" in datos else None,
                           "configuracion": datos.get("configuracion")}
             elif ruta == "/api/limpiar":
                 ESTADO["entrada_cargada"] = None

@@ -1,5 +1,10 @@
 # Mesa de ayuda bancaria — Simulador + dashboard
 
+El proyecto tiene dos formas equivalentes de uso:
+
+- **Entrega independiente:** [simulacion_tickets_banco.py](simulacion_tickets_banco.py) contiene el modelo, la generación de tickets, la simulación, la verificación y la salida por consola. Se puede entregar y ejecutar sin el servidor web.
+- **Laboratorio web:** [dashboard_tickets_banco.py](dashboard_tickets_banco.py) sirve una interfaz para cambiar parámetros, formular hipótesis, comparar escenarios y descargar el experimento completo.
+
 ## Ejecución
 
 ```bash
@@ -15,7 +20,11 @@ El motor sigue funcionando de manera independiente:
 python simulacion_tickets_banco.py --dias 5 --replicas 15
 python simulacion_tickets_banco.py --probar
 python simulacion_tickets_banco.py --guardar experimento.json
+python simulacion_tickets_banco.py --dias 5 --replicas 15 --graficos salida_graficos
 ```
+
+La última variante genera `comparacion_escenarios.png`, `evolucion_colas.png` y
+`sensibilidad.png` sin iniciar el servidor web.
 
 ## Funcionalidades
 
@@ -25,12 +34,38 @@ python simulacion_tickets_banco.py --guardar experimento.json
 - **Persistencia**: Guardar JSON con entrada sintética, resultados de cada ticket, réplicas, hipótesis, configuración y resultados. Cargar JSON recupera los datos y un resultado anterior cuando esté disponible.
 - **Comparabilidad**: semillas emparejadas en escenarios generados; cada escenario recibe características aleatorias reproducibles. Importar datos fija exactamente el mismo lote para todas las réplicas y escenarios. En ese modo, los IC entre réplicas no miden incertidumbre de demanda y no se recomienda interpretar las 30 repeticiones como 30 observaciones independientes.
 
-## Precauciones académicas
+## Precauciones y alcance
 
 Los datos de ejemplo son **sintéticos**. Guardarlos facilita futuras prácticas de predicción, pero entrenar con esos registros no prueba capacidad de generalización a incidentes reales. Para entrenar modelos sin fuga de información, utilizar como entradas únicamente atributos conocidos al abrir el ticket (prioridad, categoría, complejidad y llegada), y como etiquetas el escalamiento o la resolución **posterior**. Separar entrenamiento y prueba temporalmente.
 
 Los SLA y tiempos son supuestos; P95 de resolución solo considera tickets cerrados; las duraciones se expresan en minutos corridos. Complementar siempre con pendientes, utilización y SLA. Verificación de código ≠ validación con datos reales.
 
-## Relación con la materia
+El dashboard informa si la hipótesis queda **sostenida**, **refutada** o
+**no concluyente** bajo estos supuestos. Para datos sintéticos, el IC95% de la
+diferencia pareada usa t de Student. Un lote importado es una comparación
+descriptiva puntual: no se presenta como evidencia independiente ni recibe un
+IC artificial.
 
-Modelo conceptual → clases 1–3; eventos discretos → 4; colas/latencia/throughput → 5–6; Monte Carlo → 7; riesgo → 8; diseño de experimentos → 9; sensibilidad y validación → 10–11. Se dejan modelos predictivos y redes neuronales como etapa futura, sin usarlos en esta versión.
+También se puede elegir el P95 de resolución incluyendo tickets abiertos. Es
+una medida conservadora: para un ticket todavía abierto se usa el tiempo
+transcurrido hasta el final del horizonte.
+
+El dashboard ofrece casos predeterminados para comenzar rápidamente: operación
+normal, pico de demanda, incidente masivo, saturación de N2 y prioridad crítica.
+Se pueden cargar para inspeccionar sus parámetros o ejecutar directamente con
+**Cargar y ejecutar**.
+
+## Verificación del motor
+
+Las invariantes del modelo se comprueban con `verificar()`, que permanece activa
+incluso si Python se ejecuta con optimización. Para ejecutar las pruebas:
+
+```bash
+python simulacion_tickets_banco.py --probar
+python -O simulacion_tickets_banco.py --probar
+```
+
+Estas pruebas cubren prioridad, FIFO, escalamiento, tiempos de atención y
+continuidad del trabajo entre turnos. Una verificación correcta indica que el
+programa respeta sus reglas internas; no demuestra que los supuestos representen
+la operación real del banco.
