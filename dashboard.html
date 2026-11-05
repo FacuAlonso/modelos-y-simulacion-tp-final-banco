@@ -1,38 +1,434 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mesa de ayuda · Laboratorio de simulación</title><style>
-:root{color-scheme:dark;font-family:Inter,Segoe UI,Arial,sans-serif;background:#090e18;color:#e7edf8}*{box-sizing:border-box}body{margin:0}button,input,select{font:inherit}button{cursor:pointer} .layout{display:grid;grid-template-columns:340px minmax(0,1fr);min-height:100vh}.side{background:#111827;border-right:1px solid #273347;padding:24px;overflow-y:auto}.brand{font-size:19px;font-weight:780;letter-spacing:-.5px}.muted,.hint{color:#93a4ba}.muted{font-size:12px}.hint{font-size:12px;line-height:1.55}.tag{font-size:11px;color:#86cbff;letter-spacing:1.4px;text-transform:uppercase;font-weight:700}.section{border-top:1px solid #28354a;padding-top:18px;margin-top:20px}h3{font-size:14px;margin:0 0 13px;color:#eaf3ff}label{font-size:12px;color:#bfcee0;display:block;margin:10px 0 5px}input,select{background:#0c1321;color:#f0f5ff;border:1px solid #334155;border-radius:9px;padding:10px;width:100%;outline:none}input:focus,select:focus{border-color:#5d9cfd}input[type=file]{font-size:11px}input[type=number]{font-variant-numeric:tabular-nums}.pair{display:grid;grid-template-columns:1fr 1fr;gap:10px}.btn{border:1px solid #3a4c66;border-radius:10px;padding:12px;background:#1e2c42;color:#e8f2ff;font-weight:650}.primary{background:#3178f4;border-color:#3178f4;color:white}.full{width:100%;margin-top:12px}.main{padding:30px 38px;max-width:1550px;width:100%;margin:0 auto}.top{display:flex;justify-content:space-between;align-items:center;gap:20px}.top h1{font-size:29px;letter-spacing:-.7px;margin:8px 0}.top p{font-size:13px;color:#9eb0c9}.status{border:1px solid #2d4566;border-radius:999px;padding:9px 12px;font-size:12px;color:#a7c8ff}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:23px}.card,.panel{background:#121d2e;border:1px solid #28384f;border-radius:14px;padding:20px}.card small{color:#a0b0c4;font-size:12px}.big{font-size:27px;font-weight:760;letter-spacing:-.8px;margin:10px 0 4px;font-variant-numeric:tabular-nums}.delta{font-size:12px;color:#93a4ba}.good{color:#70dcb0}.bad{color:#ff9c9c}.grid{display:grid;grid-template-columns:1.15fr 1fr;gap:15px;margin-top:15px}.panel h2{font-size:16px;margin:0 0 5px}.panel p{font-size:12px;color:#9cacc0;line-height:1.6}.chart{min-height:250px;margin-top:15px}.barline{display:grid;grid-template-columns:125px 1fr 64px;align-items:center;gap:10px;margin:20px 0}.barlabel{font-size:12px;color:#b8c8df}.track{height:22px;background:#0c1524;border-radius:5px;overflow:hidden}.fill{height:100%;border-radius:5px}.barvalue{text-align:right;font-size:13px;font-weight:650}.legend{display:flex;gap:16px;color:#a3b5c9;font-size:12px}.dot{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:5px}.conclusion{margin:16px 0;border-left:3px solid #5fa0ff;background:#12243c;padding:15px 18px;border-radius:5px 12px 12px 5px;font-size:13px;line-height:1.6}.table{width:100%;border-collapse:collapse;font-size:12px;margin-top:13px}.table th,.table td{border-bottom:1px solid #2a3b51;padding:12px 8px;text-align:right}.table th:first-child,.table td:first-child{text-align:left}.table th{color:#9db2d0;font-weight:550}.foot{margin-top:20px;color:#8d9fb9;font-size:12px;line-height:1.6}.subheading{font-size:13px;color:#d8e6fa;font-weight:700}.empty{display:grid;place-items:center;text-align:center;min-height:290px;color:#9badc5}.empty b{font-size:19px;color:#dce7f5}.error{color:#ff9c9c;font-size:12px;margin-top:10px}.explain{font-size:12px;color:#91a6c5;border-bottom:1px dashed #425875;cursor:help}.minirow{display:flex;gap:10px;flex-wrap:wrap}.minirow .btn{flex:1}.hide{display:none}.scroll{max-height:400px;overflow:auto}.help{background:#1a2b42;border:1px solid #395173;padding:10px;border-radius:8px;margin-top:8px;font-size:12px;color:#b8c9e1}details{margin-top:10px}summary{cursor:pointer;color:#9fc8ff;font-size:13px;padding:8px 0}.narrow{max-width:100%}@media(max-width:1100px){.cards{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}}@media(max-width:760px){.layout{grid-template-columns:1fr}.side{border-right:none;border-bottom:1px solid #273347}.main{padding:20px}.cards{grid-template-columns:1fr 1fr}.top{display:block}}
-</style></head><body><div class="layout"><aside class="side"><div class="tag">Modelos y simulación · TP final</div><div class="brand" style="margin-top:8px">Mesa de ayuda bancaria</div><p class="muted">Laboratorio experimental · Datos y parámetros supuestos</p>
-<div class="section"><h3>1. Pregunta / hipótesis</h3><label>¿Qué querés evaluar?</label><select id="hipotesis"><option value="menos_escalamiento">Capacitar N1: reducir escaladas</option><option value="refuerzo_n2">Reforzar especialistas N2</option><option value="redistribucion">Redistribuir turnos N1</option><option value="servicio">Reducir tiempos de servicio</option><option value="demanda">Aumentar demanda (estrés)</option><option value="prioridad">Prioridad con envejecimiento</option></select><label id="maglabel">Reducción de escalamiento (%)</label><input id="magnitud" type="number" min="0" max="100" value="25" step="5"><label>Variable de respuesta principal</label><select id="indicador"><option value="resolucion_p95_min">P95 de resolución (min)</option><option value="respuesta_p95_min">P95 primera respuesta (min)</option><option value="pendientes">Tickets pendientes (backlog)</option><option value="incumplimiento_resolucion_pct">Incumplimiento SLA resolución (%)</option><option value="cola_maxima">Cola máxima (tickets)</option></select></div>
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Mesa de ayuda bancaria</title>
+<style>
+:root{color-scheme:light;--fondo:#f1f2ee;--superficie:#fcfcfb;--hundido:#ecece7;--borde:#dcdcd4;--texto:#0b0b0b;--texto2:#52514e;--texto3:#6f6e69;--serie:#2a78d6;--serie-suave:#b0afa7;--bien:#006300;--mal:#b02a2a;--aviso:#7d5200;--rejilla:#e6e5de;--fondo-bien:#e4f2e4;--fondo-mal:#f9e7e5;--fondo-aviso:#faefd5;--menu:#0e1a2b;--menu-texto:#b9c5d6;--heroe:#123a6b;--estable:#0ca30c;--riesgo:#fab219;--critico:#d03b3b;--enlace:#1c5fb3}
+@media (prefers-color-scheme:dark){:root{color-scheme:dark;--fondo:#101110;--superficie:#1a1a19;--hundido:#252523;--borde:#353532;--texto:#f0efec;--texto2:#c3c2b7;--texto3:#9b9a90;--serie:#3987e5;--serie-suave:#6c6b64;--bien:#3fc13f;--mal:#f08a8a;--aviso:#e8b23e;--rejilla:#2c2c2a;--fondo-bien:#15291a;--fondo-mal:#35201f;--fondo-aviso:#2f2715;--menu:#0a111c;--heroe:#143a68;--enlace:#79b2f2}}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--fondo);color:var(--texto);font:15px/1.55 "Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;overflow-wrap:break-word}
+button,input,select{font:inherit;color:inherit}button{cursor:pointer}a{color:var(--enlace)}code{overflow-wrap:anywhere;font-size:.92em}
+:focus-visible{outline:2px solid var(--serie);outline-offset:2px}
+
+/* Estructura y menú */
+.app{display:grid;grid-template-columns:236px minmax(0,1fr);min-height:100vh;min-height:100dvh}
+.menu{position:sticky;top:0;height:100vh;height:100dvh;background:var(--menu);color:var(--menu-texto);display:flex;flex-direction:column;padding:24px 14px;gap:22px}
+.marca{padding:0 10px;color:#fff;font-weight:700;font-size:17px;line-height:1.2;letter-spacing:-.01em}.marca small{display:block;margin-top:4px;font-weight:400;font-size:12px;color:var(--menu-texto);letter-spacing:0}
+.menu nav{display:flex;flex-direction:column;gap:3px}
+.menu nav a{display:flex;align-items:center;gap:11px;min-height:44px;padding:9px 11px;border-radius:9px;color:var(--menu-texto);text-decoration:none;font-weight:500;transition:background .15s,color .15s}
+.menu nav a:hover{background:#ffffff12;color:#fff}.menu nav a[aria-current=page]{background:#2a78d6;color:#fff;font-weight:600}
+.menu nav a:focus-visible{outline-color:#fff}.menu svg{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.corto{display:none}.menu-pie{margin-top:auto;padding:0 10px;font-size:12px;line-height:1.45;color:var(--menu-texto)}
+.contenido{width:100%;max-width:1120px;margin:0 auto;padding:clamp(18px,3.2vw,38px)}
+.pantalla{animation:entrar .22s ease-out}.pantalla[hidden]{display:none}@keyframes entrar{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.aviso-calculo{display:flex;align-items:center;gap:9px;background:var(--fondo-aviso);color:var(--texto);border-radius:9px;padding:9px 13px;margin-bottom:16px;font-size:13.5px}.aviso-calculo[hidden]{display:none}
+
+/* Tipografía */
+.rotulo{font-size:12px;font-weight:650;color:var(--texto3);text-transform:uppercase;letter-spacing:.07em;margin:0 0 6px}
+h1{font-size:clamp(24px,3.1vw,34px);line-height:1.18;font-weight:700;letter-spacing:-.018em;margin:0 0 20px;max-width:27em;text-wrap:balance}
+h2{font-size:17px;line-height:1.3;font-weight:650;margin:0 0 4px}
+h3{font-size:14px;font-weight:650;margin:0 0 4px}
+.subtitulo{color:var(--texto2);font-size:13px;margin:0 0 12px}
+.bloque{background:var(--superficie);border:1px solid var(--borde);border-radius:14px;padding:clamp(16px,2.4vw,26px);margin-bottom:16px;container-type:inline-size}
+.cargando{color:var(--texto2);padding:16px 0;margin:0}.cargando::before,.aviso-calculo::before{content:"";display:inline-block;flex:none;width:13px;height:13px;margin-right:8px;border-radius:50%;border:2px solid var(--borde);border-top-color:var(--serie);vertical-align:-1px;animation:giro 1s linear infinite}.aviso-calculo::before{margin-right:0}.aviso-calculo.error::before{display:none}@keyframes giro{to{transform:rotate(360deg)}}
+
+/* Portada */
+.heroe{position:relative;overflow:hidden;background:var(--heroe);color:#fff;border-radius:16px;padding:clamp(22px,4vw,40px);margin-bottom:16px}
+.heroe::after{content:"";position:absolute;inset:0;background-image:radial-gradient(#ffffff1f 1.3px,transparent 1.4px);background-size:18px 18px;-webkit-mask-image:linear-gradient(115deg,transparent 45%,#000);mask-image:linear-gradient(115deg,transparent 45%,#000);pointer-events:none}
+.heroe>*{position:relative;z-index:1}.heroe .rotulo{color:#bcd5f3}.heroe h1{color:#fff;margin-bottom:14px;max-width:24em}.heroe .frase{font-size:clamp(15.5px,1.7vw,18px);line-height:1.5;color:#dfeafa;margin:0;max-width:42em}.heroe .frase b{color:#fff}
+.tarjetas{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:16px}@media(max-width:699px){.tarjetas{grid-template-columns:minmax(0,1fr)}}
+.tarjeta{display:flex;flex-direction:column;background:var(--superficie);border:1px solid var(--borde);border-top:4px solid var(--borde);border-radius:14px;padding:18px 20px;color:inherit;text-decoration:none;transition:transform .15s,box-shadow .15s,border-color .15s;min-width:0}
+.tarjeta:hover{transform:translateY(-3px);box-shadow:0 10px 24px #0000001f}.tarjeta.pos{border-top-color:var(--estable)}.tarjeta.ries{border-top-color:var(--riesgo)}.tarjeta.neg{border-top-color:var(--critico)}.tarjeta.pend{border-top-color:var(--serie-suave)}
+.tarjeta .preg{font-size:13.5px;color:var(--texto2);margin:0 0 12px;line-height:1.4}.tarjeta .cifra{font-size:clamp(36px,4.5vw,46px);font-weight:700;letter-spacing:-.03em;line-height:1.05;font-variant-numeric:tabular-nums}.tarjeta .que{font-weight:600;margin:6px 0 14px}
+.tarjeta .ir{margin-top:auto;padding-top:14px;font-size:13px;font-weight:600;color:var(--enlace)}
+.mini{display:grid;grid-template-columns:auto 1fr auto;gap:7px 9px;align-items:center;font-size:12.5px;color:var(--texto2);font-variant-numeric:tabular-nums}.mini .b{height:10px;border-radius:0 4px 4px 0;background:var(--serie-suave)}.mini .b.des{background:var(--serie)}
+.riel{position:relative;height:10px;border-radius:5px;margin:8px 0 8px}.riel i{position:absolute;top:-3px;width:16px;height:16px;margin-left:-8px;border-radius:50%;background:var(--superficie);border:3px solid var(--texto)}.leyenda-riel{display:flex;justify-content:space-between;gap:6px;font-size:12px;color:var(--texto3);font-variant-numeric:tabular-nums}
+.compara{display:flex;gap:18px;flex-wrap:wrap;font-size:12.5px;color:var(--texto2);font-variant-numeric:tabular-nums}.compara b{display:block;font-size:19px;color:var(--texto)}
+.tira{display:flex;gap:6px 14px;flex-wrap:wrap;justify-content:space-between;align-items:center;font-size:13.5px;color:var(--texto2);background:var(--hundido);border-radius:10px;padding:11px 15px}.tira a{font-weight:600;white-space:nowrap}
+
+/* Respuesta destacada */
+.respuesta{border-radius:12px;padding:16px 18px;margin-bottom:22px;background:var(--hundido)}
+.respuesta.pos{background:var(--fondo-bien)}.respuesta.neg{background:var(--fondo-mal)}
+.respuesta .rotulo{margin-bottom:4px}.respuesta .titular{font-size:clamp(21px,2.6vw,27px);line-height:1.2;font-weight:700;letter-spacing:-.012em;margin:0 0 6px;text-wrap:balance}.respuesta p{margin:0;color:var(--texto2);max-width:48em}.respuesta .titular{color:var(--texto)}
+
+/* Comparación de alternativas */
+.bosque{display:grid;grid-template-columns:minmax(140px,1.05fr) minmax(170px,2fr) 106px 88px minmax(132px,1fr);column-gap:14px;align-items:center;font-size:13.5px}
+.bosque .enc{color:var(--texto3);font-size:12px;padding-bottom:6px;border-bottom:1px solid var(--borde);align-self:stretch}
+.bosque .fila{padding:11px 0;border-bottom:1px solid var(--rejilla);align-self:stretch;display:flex;align-items:center;min-width:0}
+.bosque .num{justify-content:flex-end;text-align:right;font-variant-numeric:tabular-nums}.bosque .enc.num{text-align:right}.bosque .destacada{font-weight:650}
+.pista{position:relative;height:22px;width:100%}.cero{position:absolute;top:-11px;bottom:-11px;width:1px;background:var(--texto3)}
+.ic{position:absolute;top:10px;height:2px;background:var(--serie-suave);border-radius:1px}.ic.gana{background:var(--serie)}
+.punto{position:absolute;top:6px;width:10px;height:10px;margin-left:-5px;border-radius:50%;background:var(--serie-suave);box-shadow:0 0 0 2px var(--superficie)}.punto.gana{background:var(--serie)}
+.escala{position:relative;height:18px;font-size:11px;color:var(--texto3);margin-top:4px}.escala span{position:absolute;transform:translateX(-50%);white-space:nowrap}.escala span.cero-et{transform:translateX(-85%)}
+.estado{display:inline-flex;gap:5px;align-items:baseline;font-weight:550}.estado.ok{color:var(--bien)}.estado.mal{color:var(--mal)}.estado.aviso{color:var(--aviso)}.estado.neutro{color:var(--texto2)}
+.solo-angosto{display:none}
+@container (max-width:720px){.bosque{grid-template-columns:1fr 1fr;row-gap:0}.bosque .enc,.bosque .eje-vacio{display:none}.bosque .fila{border:0;padding:4px 0}.bosque .nombre{grid-column:1/-1;padding-top:14px;border-top:1px solid var(--rejilla)}.bosque .plot,.bosque .estado-col,.bosque .escala-fila{grid-column:1/-1}.bosque .num{justify-content:flex-start;text-align:left}.bosque .plot{padding:9px 0}.solo-angosto{display:inline;color:var(--texto3);margin-right:4px}.bosque .primera{border-top:0;padding-top:0}}
+
+/* Deslizable */
+.control{background:var(--hundido);border-radius:12px;padding:16px 18px;margin-bottom:16px}
+.control-cab{display:flex;justify-content:space-between;align-items:center;gap:8px 12px;flex-wrap:wrap}.control label{font-weight:550;margin:0;display:block;font-size:13px;color:var(--texto2)}.control output{display:block;font-size:clamp(26px,3.5vw,34px);font-weight:700;letter-spacing:-.02em;line-height:1.15;font-variant-numeric:tabular-nums}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;margin:14px 0 4px;height:30px;cursor:grab;padding:0;border:0;background:none;touch-action:pan-y}input[type=range]:active{cursor:grabbing}
+input[type=range]::-webkit-slider-runnable-track{height:10px;border-radius:5px;background:var(--pista,var(--borde))}input[type=range]::-moz-range-track{height:10px;border-radius:5px;background:var(--pista,var(--borde))}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;margin-top:-9px;border-radius:50%;background:var(--superficie);border:4px solid var(--texto);box-shadow:0 2px 6px #0000004d}input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--superficie);border:4px solid var(--texto);box-shadow:0 2px 6px #0000004d}
+.marcas{display:flex;justify-content:space-between;color:var(--texto3);font-size:11.5px;font-variant-numeric:tabular-nums}.marcas .critica{color:var(--texto);font-weight:700}
+.sello{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 13px;font-size:14px;font-weight:650}.sello.ok{background:var(--fondo-bien);color:var(--bien)}.sello.aviso{background:var(--fondo-aviso);color:var(--aviso)}.sello.mal{background:var(--fondo-mal);color:var(--mal)}
+.atajos{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,205px),1fr));gap:8px;margin:0 0 16px}.atajo{text-align:left;border:1px solid var(--borde);background:var(--superficie);border-radius:10px;padding:9px 12px;min-height:44px;line-height:1.35;transition:border-color .15s}.atajo b{display:block;font-variant-numeric:tabular-nums}.atajo span{font-size:12.5px;color:var(--texto2)}.atajo:hover{border-color:var(--texto3)}.atajo.activo{border-color:var(--serie);box-shadow:inset 0 0 0 1px var(--serie)}
+.lectura{margin:0 0 16px;color:var(--texto2);min-height:3.1em}.lectura b{color:var(--texto)}
+.fichas{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:22px}.ficha{background:var(--hundido);border-radius:10px;padding:12px 14px}.ficha small{display:block;font-size:12px;color:var(--texto2)}.ficha strong{display:block;font-size:clamp(20px,2.5vw,25px);font-weight:700;letter-spacing:-.015em;font-variant-numeric:tabular-nums;line-height:1.3}.ficha em{font-style:normal;font-size:12px;color:var(--texto3)}
+.dos{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:26px}
+.grafico svg{display:block;width:100%;overflow:visible}.grafico text{fill:var(--texto3);font-size:11px;font-family:inherit}.grafico text.fuerte{fill:var(--texto);font-weight:600;font-size:12px}
+.leyenda{display:flex;gap:4px 14px;flex-wrap:wrap;font-size:12px;color:var(--texto2);margin-bottom:6px}.leyenda i{display:inline-block;width:16px;height:0;border-top:2px solid var(--serie);vertical-align:middle;margin-right:5px}.leyenda i.limite{border-top:2px dashed var(--texto3)}
+.util{display:grid;grid-template-columns:112px minmax(0,1fr) 50px;gap:10px;align-items:center;font-size:13px;margin:13px 0}.util .barra{position:relative;height:12px;background:var(--hundido);border-radius:3px}.util .relleno{height:100%;border-radius:0 4px 4px 0;background:var(--serie);transition:width .22s ease,background .22s}.util .relleno.alto{background:var(--critico)}.util .tope{position:absolute;top:-4px;bottom:-4px;width:1px;background:var(--texto)}.util .val{text-align:right;font-variant-numeric:tabular-nums}
+@container (max-width:720px){.fichas{grid-template-columns:repeat(2,minmax(0,1fr))}.dos{grid-template-columns:minmax(0,1fr)}}
+@container (max-width:440px){.marcas span:nth-child(even){display:none}}
+
+/* Red neuronal */
+.modelos{display:grid;grid-template-columns:150px minmax(0,1fr) 54px;column-gap:12px;align-items:center;font-size:13.5px}.modelos .fila{padding:11px 0;border-bottom:1px solid var(--rejilla);display:flex;align-items:center;align-self:stretch;min-width:0}.modelos .val{justify-content:flex-end;font-variant-numeric:tabular-nums;font-weight:600}
+.pista.auc .referencia{position:absolute;top:-11px;bottom:-11px;width:0;border-left:1px dashed var(--texto3)}.pista.auc .azar{border-left-style:solid}
+.punto-h{position:absolute;top:8px;width:6px;height:6px;margin-left:-3px;border-radius:50%;background:var(--serie-suave);opacity:.8}.punto.media{background:var(--serie);top:6px}
+.escala-auc{position:relative;height:34px;margin-top:6px;font-size:11px;color:var(--texto3);grid-column:2}.escala-auc span{position:absolute;transform:translateX(-50%);text-align:center;line-height:1.25;white-space:nowrap}
+.claves{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:20px}.claves p{margin:0;font-size:13.5px;color:var(--texto2)}
+@container (max-width:720px){.modelos{grid-template-columns:104px minmax(0,1fr) 46px}.claves{grid-template-columns:minmax(0,1fr)}.escala-auc{height:64px}.escala-auc .etiqueta-baja{top:30px}}
+
+/* Supuestos */
+.supuestos{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,310px),1fr));gap:0 28px;margin:0;padding:0;list-style:none}.supuestos li{padding:10px 0;border-bottom:1px solid var(--rejilla);font-size:13.5px;color:var(--texto2)}.supuestos b{color:var(--texto);font-weight:600}
+.aviso-final{margin:0 0 16px;padding:14px 16px;background:var(--fondo-aviso);border-radius:12px;font-size:14px}
+.pie{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;color:var(--texto2);font-size:13px;padding:0 2px}
+
+/* Laboratorio */
+.lab-cuerpo{display:grid;grid-template-columns:290px minmax(0,1fr);gap:24px}@container (max-width:780px){.lab-cuerpo{grid-template-columns:minmax(0,1fr)}}
+.lab label{font-size:12.5px;color:var(--texto2);display:block;margin:10px 0 4px}.lab input,.lab select{width:100%;background:var(--superficie);border:1px solid var(--borde);border-radius:8px;padding:9px 10px;min-height:40px}.lab input:disabled{opacity:.55}
+.lab .section{border-top:1px solid var(--borde);padding-top:14px;margin-top:14px}.lab .section:first-child{border-top:0;padding-top:0;margin-top:0}.pair{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+.btn{border:1px solid var(--borde);border-radius:9px;padding:9px 14px;background:var(--superficie);font-weight:550;min-height:42px}.btn:disabled{opacity:.6;cursor:default}.primary{background:var(--serie);border-color:var(--serie);color:#fff}.full{width:100%;margin-top:10px}
+.hint{color:var(--texto2);font-size:12.5px}.help{background:var(--hundido);padding:9px 10px;border-radius:8px;margin-top:8px;font-size:12.5px;color:var(--texto2)}.error{color:var(--mal);font-size:13px;margin-top:8px}.hide{display:none!important}
+.lab details summary{cursor:pointer;color:var(--enlace);font-size:13px;padding:8px 0;min-height:36px;font-weight:550}.lab details.section>summary{font-size:14px;color:var(--texto);font-weight:650}
+.status{color:var(--texto3);font-size:12.5px;margin-bottom:10px;scroll-margin-top:12px}.empty{display:grid;place-items:center;text-align:center;min-height:200px;color:var(--texto2);background:var(--hundido);border-radius:10px;padding:20px}.empty p{margin:4px 0 0}
+.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}@container (max-width:900px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}}.card{background:var(--hundido);border-radius:10px;padding:12px}.card small{color:var(--texto2);font-size:12px}.big{font-size:21px;font-weight:650;font-variant-numeric:tabular-nums}.delta{font-size:12px;color:var(--texto2)}.good{color:var(--bien)}.bad{color:var(--mal)}
+.validation{margin:14px 0;border-left:4px solid var(--aviso);background:var(--fondo-aviso);padding:12px 14px;border-radius:0 10px 10px 0;font-size:13.5px}.validation.sostenida,.validation.cumple_lote{border-left-color:var(--bien);background:var(--fondo-bien)}.validation.refutada,.validation.no_cumple_lote{border-left-color:var(--mal);background:var(--fondo-mal)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:12px}.panel{border:1px solid var(--borde);border-radius:10px;padding:14px;margin-bottom:12px;min-width:0}.panel h2{font-size:14.5px;margin:0 0 4px}.panel p{font-size:12.5px;color:var(--texto2);margin:0}
+.barline{display:grid;grid-template-columns:78px minmax(0,1fr) 64px;align-items:center;gap:8px;margin:10px 0;font-size:12.5px}.track{height:14px;background:var(--hundido);border-radius:3px;overflow:hidden}.fill{height:100%;border-radius:0 4px 4px 0}.barvalue{text-align:right;font-variant-numeric:tabular-nums}.legend{display:flex;gap:14px;font-size:12px;color:var(--texto2);margin-top:8px}.dot{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:5px}
+.effect-cards,.resource-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,130px),1fr));gap:8px;margin-top:10px}.effect-card{background:var(--hundido);border-radius:8px;padding:10px}.effect-card b{display:block;font-size:12px;font-weight:550}.effect-value{font-size:18px;font-weight:650;font-variant-numeric:tabular-nums}.effect-card small{color:var(--texto2);font-size:11.5px}
+.conclusion{border-left:4px solid var(--serie);padding:4px 0 4px 12px;margin:0 0 12px;font-size:13.5px}.scroll{overflow:auto}.table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:8px}.table th,.table td{border-bottom:1px solid var(--rejilla);padding:7px 6px;text-align:right;font-variant-numeric:tabular-nums}.table th:first-child,.table td:first-child{text-align:left}.table th{color:var(--texto2);font-weight:550}.foot{color:var(--texto2);font-size:12.5px}
+#tip{position:fixed;z-index:30;max-width:min(280px,calc(100vw - 16px));pointer-events:none;background:var(--texto);color:var(--superficie);font-size:12.5px;padding:7px 10px;border-radius:7px;line-height:1.4;opacity:0;transition:opacity .1s}
+
+/* Celular y tablet: el menú pasa a una barra inferior */
+@media(max-width:999px){
+ .app{display:block}
+ .menu{position:fixed;z-index:20;top:auto;left:0;right:0;bottom:0;height:auto;flex-direction:row;padding:5px 5px calc(5px + env(safe-area-inset-bottom));gap:0;box-shadow:0 -6px 18px #00000033}
+ .marca,.menu-pie{display:none}
+ .menu nav{flex-direction:row;flex:1;gap:2px;min-width:0}
+ .menu nav a{flex:1 1 0;min-width:0;flex-direction:column;justify-content:center;gap:2px;padding:6px 1px;font-size:11px;line-height:1.15;text-align:center;min-height:52px}
+ .largo{display:none}.corto{display:inline}
+ .contenido{padding-bottom:calc(88px + env(safe-area-inset-bottom))}
+ .marca-movil{display:flex}
+}
+.marca-movil{display:none;justify-content:space-between;align-items:baseline;gap:4px 12px;flex-wrap:wrap;font-weight:700;margin-bottom:14px}.marca-movil small{font-weight:400;font-size:12px;color:var(--texto3)}
+@media(max-width:999px){.marca-movil{display:flex}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.tarjeta:hover{transform:none}}
+</style></head><body>
+<div class="app">
+<aside class="menu">
+ <div class="marca">Mesa de ayuda bancaria<small>Simulación · TP final</small></div>
+ <nav aria-label="Pantallas">
+  <a href="#resumen" data-p="resumen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z"/></svg><span class="largo">Resumen</span><span class="corto">Resumen</span></a>
+  <a href="#alternativas" data-p="alternativas"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M4 12h16M4 17h7"/><circle cx="17" cy="7" r="2"/><circle cx="14" cy="17" r="2"/></svg><span class="largo">Alternativas</span><span class="corto">Opciones</span></a>
+  <a href="#demanda" data-p="demanda"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18c5 0 7-1 10-6 2-3 4-6 8-7"/><path d="M3 21h18"/></svg><span class="largo">Puntos críticos</span><span class="corto">Demanda</span></a>
+  <a href="#red" data-p="red"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="7" r="2"/><circle cx="5" cy="17" r="2"/><circle cx="19" cy="12" r="2"/><circle cx="12" cy="5" r="2"/><circle cx="12" cy="19" r="2"/><path d="M7 7h3M7 17h3M6.5 8.5l4 9M6.5 15.5l4-9M14 6l3.5 4.5M14 18l3.5-4.5"/></svg><span class="largo">Red neuronal</span><span class="corto">Red</span></a>
+  <a href="#supuestos" data-p="supuestos"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"/><path d="M9 11h7M9 15h7"/></svg><span class="largo">Supuestos</span><span class="corto">Supuestos</span></a>
+  <a href="#laboratorio" data-p="laboratorio"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3M8 3h8M8 15h8"/></svg><span class="largo">Laboratorio</span><span class="corto">Lab</span></a>
+ </nav>
+ <div class="menu-pie">Resultados con datos sintéticos, no datos reales del banco.</div>
+</aside>
+
+<main class="contenido" id="contenido" tabindex="-1">
+<div class="marca-movil">Mesa de ayuda bancaria<small>Datos sintéticos</small></div>
+<div class="aviso-calculo" id="aviso_calculo" role="status" hidden></div>
+
+<section class="pantalla" id="p_resumen">
+ <div class="heroe"><p class="rotulo">La pregunta</p><h1>¿Qué combinación de dotación, prioridad y escalamiento reduce mejor los tiempos sin aumentar el backlog?</h1><p class="frase" id="frase">Calculando la respuesta…</p></div>
+ <div class="tarjetas" id="tarjetas_portada"></div>
+ <p class="tira"><span id="tira_supuestos"></span><a href="#supuestos">Ver todos los supuestos →</a></p>
+</section>
+
+<section class="pantalla" id="p_alternativas" hidden>
+ <p class="rotulo">Pregunta principal</p><h1>¿Qué alternativa reduce mejor los tiempos sin aumentar el backlog?</h1>
+ <div class="bloque"><div id="pregunta"><p class="cargando">Calculando…</p></div></div>
+</section>
+
+<section class="pantalla" id="p_demanda" hidden>
+ <p class="rotulo">Puntos críticos</p><h1>¿Hasta cuánta demanda aguanta la mesa de ayuda?</h1>
+ <div class="bloque"><div id="criticos"><p class="cargando">Se calcula después de la pregunta principal…</p></div></div>
+</section>
+
+<section class="pantalla" id="p_red" hidden>
+ <p class="rotulo">Predicción de escalamiento</p><h1>¿Conviene sumar una red neuronal para anticipar qué tickets van a escalar?</h1>
+ <div class="bloque"><div id="redes"><p class="cargando">Se calcula al final. Es la parte más lenta (unos minutos, solo la primera vez).</p></div></div>
+</section>
+
+<section class="pantalla" id="p_supuestos" hidden>
+ <p class="rotulo">Bajo qué supuestos</p><h1>Las respuestas valen solo si se aceptan estos supuestos</h1>
+ <p class="aviso-final"><b>Que el programa funcione no significa que represente al banco.</b> El modelo pasa sus pruebas de verificación, pero sus parámetros no están calibrados con registros reales. Sirve para comparar alternativas, no para predecir valores exactos.</p>
+ <div class="bloque"><ul class="supuestos" id="supuestos"></ul></div>
+ <div class="pie"><span id="pie_estado"></span><button class="btn" id="recalcular">Recalcular resultados</button></div>
+</section>
+
+<section class="pantalla" id="p_laboratorio" hidden>
+ <p class="rotulo">Laboratorio</p><h1>Probá otra hipótesis o cambiá los parámetros</h1>
+ <div class="bloque lab"><div class="lab-cuerpo"><div><div class="section"><h3>1. Qué querés probar</h3><label>Hipótesis</label><select id="hipotesis"><option value="menos_escalamiento">Capacitar N1: reducir escaladas</option><option value="refuerzo_n2">Reforzar especialistas N2</option><option value="redistribucion">Redistribuir turnos N1</option><option value="servicio">Reducir tiempos de servicio</option><option value="demanda">Aumentar demanda (estrés)</option><option value="prioridad">Prioridad con envejecimiento</option></select><label id="maglabel">Reducción de escalamiento (%)</label><input id="magnitud" type="number" min="0" max="100" value="25" step="5"><label>Resultado principal</label><select id="indicador"><option value="resolucion_p95_min">P95 de resolución (solo cerrados)</option><option value="resolucion_p95_con_abiertos_min">P95 de resolución incluyendo abiertos</option><option value="respuesta_p95_min">P95 primera respuesta (min)</option><option value="pendientes">Tickets pendientes (backlog)</option><option value="incumplimiento_resolucion_pct">Incumplimiento SLA resolución (%)</option><option value="cola_maxima">Cola máxima (tickets)</option></select><div id="como" class="help"></div></div>
 <div class="section"><h3>2. Horizonte y réplicas</h3><div class="pair"><div><label>Días</label><input id="dias" type="number" min="1" max="30" value="5"></div><div><label>Réplicas</label><input id="replicas" type="number" min="1" max="100" value="15"></div></div><label>Semilla de aleatoriedad</label><input id="semilla" type="number" min="0" value="2026"><p class="hint">Mismas semillas para comparar alternativas. Cada réplica representa una demanda diferente cuando se generan datos.</p></div>
-<div class="section"><h3>3. Origen y distribuciones</h3><label>Origen de los tickets</label><div id="fuente" class="help">Generación sintética (Poisson / triangular)</div><label>Distribución de llegadas por hora</label><select id="distribucion_llegadas"><option value="poisson">Poisson: número aleatorio por hora</option><option value="deterministica">Determinística: cantidad fija aproximada</option></select><label>Distribución de tiempo de atención</label><select id="distribucion_servicio"><option value="triangular">Triangular: mínimo / moda / máximo</option><option value="fija">Fija: valor más probable</option></select><label>Tasa horaria (10 valores, de 8 a 18 h)</label><input id="tasas_horarias" value="15,19,16,12,9,10,14,12,8,5"><label>Servicio por equipo (min / moda / max, minutos)</label><div id="servicios"></div><details><summary>Probabilidades y reglas adicionales</summary><label>Probabilidad escalamiento N1 por categoría (%)</label><div id="escalamiento"></div><label>Escalamiento N2 (%)</label><input type="number" id="prob_escalamiento_n2" min="0" max="100" value="10"><label>Reapertura (%)</label><input type="number" id="prob_reapertura" min="0" max="100" value="2.5"><label>Política de prioridad base</label><select id="politica_prioridad"><option value="estricta">Estricta + FIFO</option><option value="envejecimiento">Envejecimiento + FIFO</option></select></details><details><summary>Dotación y turnos de técnicos</summary><div class="hint">Cada técnico trabaja en su turno; horario relativo a las 8:00. La dotación se edita por cantidad en turno temprano y tarde.</div><div id="turnos"></div></details><p class="hint">Poisson modela cantidad de llegadas, triangular tiempos de servicio. Los valores son hipótesis, no parámetros calibrados.</p></div>
-<div class="section"><h3>4. Datos y experimentos</h3><button class="btn primary full" id="run">▶ Ejecutar comparación</button><div id="error" class="error"></div><button class="btn full" id="guardar">Guardar experimento y dataset (JSON)</button><label>Recuperar dataset / experimento JSON</label><input id="archivo" type="file" accept="application/json,.json"><button class="btn full" id="limpiar">Volver a datos generados</button><div class="hint">El JSON conserva configuración, semillas, atributos iniciales, resultados por ticket, réplicas y métricas. Compatible con análisis posteriores; no entrena redes por sí solo.</div></div></aside>
-<main class="main"><div class="top"><div><div class="tag">Comparación experimental</div><h1>¿La alternativa mejora al escenario base?</h1><p>Factor controlado → simulación → variable de respuesta → interpretación</p></div><div class="status" id="estado">Sin simulación</div></div>
-<div id="vacio" class="empty"><div><b>Elegí una hipótesis y ejecutá una comparación</b><p>Los indicadores, gráficos y conclusiones aparecerán aquí.</p></div></div>
-<div id="resultados" class="hide"><div class="cards" id="tarjetas"></div><div class="grid"><div class="panel"><h2>Impacto sobre la variable de respuesta</h2><p id="subrespuesta"></p><div id="grafico_principal" class="chart"></div><div id="incertidumbre" class="hint"></div></div><div class="panel"><h2>Control de efectos secundarios</h2><p>Una mejora en P95 puede ocultar crecimiento de tickets pendientes.</p><div id="grafico_control" class="chart"></div></div></div><div class="conclusion" id="lectura"></div><div class="panel"><h2>Capacidad y cuellos de botella</h2><p>Utilización por equipo; valores cercanos al 100 % indican poco margen para absorber urgencias.</p><div id="grafico_recursos"></div></div><div class="panel" style="margin-top:15px"><h2>Comparación completa</h2><p>Promedios de réplicas. No confundir verificación del programa con validación del banco real.</p><div class="scroll"><table class="table"><thead><tr><th>Indicador</th><th>Base</th><th>Alternativa</th><th>Diferencia</th></tr></thead><tbody id="tabla"></tbody></table></div></div><p class="foot" id="advertencias"></p></div>
-<div class="foot">Material de referencia: eventos discretos, colas y capacidad, datos sintéticos, Monte Carlo, diseño de experimentos, análisis de sensibilidad, verificación y validación. Sin redes neuronales implementadas.</div></main></div>
+<details class="section"><summary>3. Origen, distribuciones y dotación (opcional)</summary><label>Origen de los tickets</label><div id="fuente" class="help">Generación sintética (Poisson / triangular)</div><label>Distribución de llegadas por hora</label><select id="distribucion_llegadas"><option value="poisson">Poisson: número aleatorio por hora</option><option value="deterministica">Determinística: cantidad fija aproximada</option></select><label>Distribución de tiempo de atención</label><select id="distribucion_servicio"><option value="triangular">Triangular: mínimo / moda / máximo</option><option value="fija">Fija: valor más probable</option></select><label>Tasa horaria (10 valores, de 8 a 18 h)</label><input id="tasas_horarias" value="15,19,16,12,9,10,14,12,8,5"><label>Servicio por equipo (min / moda / max, minutos)</label><div id="servicios"></div><details><summary>Probabilidades y reglas adicionales</summary><label>Probabilidad escalamiento N1 por categoría (%)</label><div id="escalamiento"></div><label>Escalamiento N2 (%)</label><input type="number" id="prob_escalamiento_n2" min="0" max="100" value="10"><label>Reapertura (%)</label><input type="number" id="prob_reapertura" min="0" max="100" value="2.5"><label>Política de prioridad base</label><select id="politica_prioridad"><option value="estricta">Estricta + FIFO</option><option value="envejecimiento">Envejecimiento + FIFO</option></select></details><details><summary>Dotación y turnos de técnicos</summary><div class="hint">Cada técnico trabaja en su turno; horario relativo a las 8:00. La dotación se edita por cantidad en turno temprano y tarde.</div><div id="turnos"></div></details><p class="hint">Poisson modela cantidad de llegadas, triangular tiempos de servicio. Los valores son hipótesis, no parámetros calibrados.</p></details>
+<div class="section"><h3>4. Ejecutar</h3><button class="btn primary full" id="run">▶ Ejecutar simulación</button><div id="error" class="error"></div><div class="hint">Se compara el escenario base contra la alternativa usando las mismas semillas.</div></div></div><div>
+  <div class="status" id="estado">Sin simulación</div>
+  <div id="vacio" class="empty"><div><b>Elegí una hipótesis y ejecutá la simulación</b><p>El resultado aparece acá.</p></div></div>
+  <div id="resultados" class="hide"><div class="cards" id="tarjetas"></div><div class="validation" id="validacion"></div><div class="grid"><div class="panel"><h2>¿La alternativa logra el objetivo?</h2><p id="subrespuesta"></p><div id="grafico_principal" class="chart"></div><div id="incertidumbre" class="hint"></div></div><div class="panel"><h2>¿Qué costo o efecto secundario aparece?</h2><p>Valores positivos significan más tickets, demora o incumplimiento que en el escenario base.</p><div id="grafico_control" class="chart"></div></div></div><div class="conclusion" id="lectura"></div><div class="panel"><h2>¿Dónde queda la presión operativa?</h2><p>Utilización de la alternativa: más de 85% indica un posible cuello de botella.</p><div id="grafico_recursos"></div></div><div class="panel"><h2>Detalle numérico</h2><p>Promedios de réplicas. No confundir verificación del programa con validación del banco real.</p><div class="scroll"><table class="table"><thead><tr><th>Indicador</th><th>Base</th><th>Alternativa</th><th>Diferencia</th></tr></thead><tbody id="tabla"></tbody></table></div></div><p class="foot" id="advertencias"></p></div>
+  <p class="hint"><a id="descargar" class="hide" href="/api/guardar">Descargar el experimento completo (JSON)</a></p>
+ </div></div></div>
+</section>
+</main>
+</div>
+<div id="tip" role="status"></div>
 <script>
 const $=id=>document.getElementById(id);let cfg=null;
-const labels={resolucion_p95_min:'P95 resolución',respuesta_p95_min:'P95 respuesta',pendientes:'Pendientes',incumplimiento_resolucion_pct:'Incumplimiento SLA',cola_maxima:'Cola máxima',ingresados:'Ingresados',resueltos:'Resueltos',throughput_por_hora:'Throughput / hora',utilizacion_N1_pct:'Utilización N1',utilizacion_N2_aplicaciones_pct:'Utilización N2 aplicaciones',utilizacion_N2_infraestructura_pct:'Utilización N2 infraestructura',utilizacion_N3_pct:'Utilización N3'};
+const labels={resolucion_p95_min:'P95 resolución cerrados',resolucion_p95_con_abiertos_min:'P95 resolución con abiertos',respuesta_p95_min:'P95 respuesta',pendientes:'Pendientes',incumplimiento_resolucion_pct:'Incumplimiento SLA',cola_maxima:'Cola máxima',ingresados:'Ingresados',resueltos:'Resueltos',throughput_por_hora:'Throughput / hora',utilizacion_N1_pct:'Utilización N1',utilizacion_N2_aplicaciones_pct:'Utilización N2 aplicaciones',utilizacion_N2_infraestructura_pct:'Utilización N2 infraestructura',utilizacion_N3_pct:'Utilización N3'};
 const num=(v,d=1)=>v==null||!Number.isFinite(v)?'—':Number(v).toLocaleString('es-AR',{minimumFractionDigits:d,maximumFractionDigits:d});
 const val=id=>Number($(id).value);const pct=(a,b)=>b===0?0:100*a/b;
 async function request(path,body){const r=await fetch(path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});let x=await r.json();if(!r.ok)throw Error(x.error||'Error de comunicación');return x;}
-function renderInputs(){for(let e of ['N1','N2_aplicaciones','N2_infraestructura','N3']){$('servicios').insertAdjacentHTML('beforeend',`<label>${e}</label><input id="serv_${e}" value="${cfg.servicio_triangular[e].join(',')}">`);let t=cfg.turnos[e];let early=t.filter(a=>a[0]===0).length,late=t.length-early;$('turnos').insertAdjacentHTML('beforeend',`<label>${e}: temprano / tarde</label><div class="pair"><input id="early_${e}" type="number" min="0" max="30" value="${early}"><input id="late_${e}" type="number" min="0" max="30" value="${late}"></div>`);}for(let [k,v] of Object.entries(cfg.prob_escalamiento_n1))$('escalamiento').insertAdjacentHTML('beforeend',`<label>${k}</label><input id="esc_${k}" type="number" min="0" max="100" value="${num(v*100,1)}">`);}
+function renderInputs(){for(let e of ['N1','N2_aplicaciones','N2_infraestructura','N3']){$('servicios').insertAdjacentHTML('beforeend',`<label>${e}</label><input id="serv_${e}" value="${cfg.servicio_triangular[e].join(',')}">`);let t=cfg.turnos[e];let early=t.filter(a=>a[0]===0).length,late=t.length-early;$('turnos').insertAdjacentHTML('beforeend',`<label>${e}: temprano / tarde</label><div class="pair"><input id="early_${e}" type="number" min="0" max="30" value="${early}"><input id="late_${e}" type="number" min="0" max="30" value="${late}"></div>`);}for(let [k,v] of Object.entries(cfg.prob_escalamiento_n1))$('escalamiento').insertAdjacentHTML('beforeend',`<label>${k}</label><input id="esc_${k}" type="number" min="0" max="100" step="0.1" value="${(100*v).toFixed(1)}">`);}
 function parseNumbers(s,n){let a=s.split(',').map(x=>Number(x.trim()));if(a.length!==n||a.some(x=>!Number.isFinite(x)))throw Error(`Se requieren ${n} números separados por comas`);return a;}
 function getConfig(){let c=structuredClone(cfg);c.dias=val('dias');c.replicas=val('replicas');c.semilla=val('semilla');c.distribucion_llegadas=$('distribucion_llegadas').value;c.distribucion_servicio=$('distribucion_servicio').value;c.politica_prioridad=$('politica_prioridad').value;c.tasas_horarias=parseNumbers($('tasas_horarias').value,10);c.prob_escalamiento_n2=val('prob_escalamiento_n2')/100;c.prob_reapertura=val('prob_reapertura')/100;for(let e of Object.keys(c.servicio_triangular)){c.servicio_triangular[e]=parseNumbers($('serv_'+e).value,3);let early=val('early_'+e),late=val('late_'+e);if(!Number.isInteger(early)||!Number.isInteger(late)||early<0||late<0||early+late>30)throw Error('Dotación inválida en '+e);c.turnos[e]=[...Array(early)].map(()=>[0,480]).concat([...Array(late)].map(()=>[120,600]));}for(let k of Object.keys(c.prob_escalamiento_n1))c.prob_escalamiento_n1[k]=val('esc_'+k)/100;return c;}
 function setConfig(c){if(!c)return;for(let id of ['dias','replicas','semilla','distribucion_llegadas','distribucion_servicio','politica_prioridad','prob_escalamiento_n2','prob_reapertura'])if($(id))$(id).value=['prob_escalamiento_n2','prob_reapertura'].includes(id)?100*c[id]:c[id];$('tasas_horarias').value=c.tasas_horarias.join(',');for(let e of Object.keys(c.servicio_triangular)){$('serv_'+e).value=c.servicio_triangular[e].join(',');let t=c.turnos[e];$('early_'+e).value=t.filter(x=>x[0]===0).length;$('late_'+e).value=t.filter(x=>x[0]!==0).length;}for(let k of Object.keys(c.prob_escalamiento_n1))$('esc_'+k).value=100*c.prob_escalamiento_n1[k];}
-function changeHip(){let t=$('hipotesis').value;const options={menos_escalamiento:['Reducción de escalamiento (%)',25],refuerzo_n2:['Técnicos adicionales N2 aplicaciones',1],redistribucion:['No requiere magnitud',0],servicio:['Reducción de tiempos de servicio (%)',20],demanda:['Incremento de demanda (%)',30],prioridad:['No requiere magnitud',0]};$('maglabel').textContent=options[t][0];$('magnitud').value=options[t][1];$('magnitud').disabled=['redistribucion','prioridad'].includes(t);$('magnitud').max=t==='refuerzo_n2'?5:100;$('magnitud').step=t==='refuerzo_n2'?1:5;}
+function changeHip(){let t=$('hipotesis').value;const options={menos_escalamiento:['Reducción de escalamiento (%)',25,'Capacitar N1: se espera que bajen las escaladas y el tiempo de resolución.'],refuerzo_n2:['Técnicos adicionales N2 aplicaciones',1,'Agregar capacidad a N2: se espera bajar el backlog y la demora.'],redistribucion:['No requiere magnitud',0,'Redistribuir turnos: se busca cubrir mejor la demanda durante el horario.'],servicio:['Reducción de tiempos de servicio (%)',20,'Atender más rápido: se espera reducir colas y tiempos.'],demanda:['Incremento de demanda (%)',30,'Prueba de estrés: se espera que aumenten colas, tiempos e incumplimientos.'],prioridad:['No requiere magnitud',0,'Envejecimiento: evita que tickets de baja prioridad esperen indefinidamente.']};$('maglabel').textContent=options[t][0];$('como').textContent=options[t][2];$('magnitud').value=options[t][1];$('magnitud').disabled=['redistribucion','prioridad'].includes(t);$('magnitud').max=t==='refuerzo_n2'?5:100;$('magnitud').step=t==='refuerzo_n2'?1:5;}
+function colorDiferencia(k,d){if(d===0||k==='ingresados'||k.startsWith('utilizacion_'))return '';let masEsMejor=k==='resueltos'||k==='throughput_por_hora';return (masEsMejor?d>0:d<0)?'good':'bad';}
 function barra(nombre,v,max,color,unit=''){return `<div class="barline"><div class="barlabel">${nombre}</div><div class="track"><div class="fill" style="width:${max>0?Math.max(0,Math.min(100,100*v/max)):0}%;background:${color}"></div></div><div class="barvalue">${num(v)}${unit}</div></div>`;}
-function pintar(r){if(!r||!r.resumen)return;let b=r.resumen.base,a=r.resumen.alternativa,k=r.indicador||$('indicador').value;let gap=a[k]-b[k],good=gap<0;let card=(titulo,base,alt,unit='')=>`<div class="card"><small>${titulo}</small><div class="big">${num(alt)}${unit}</div><div class="delta">Base ${num(base)}${unit} · <span class="${alt<=base?'good':'bad'}">${alt>=base?'+':''}${num(alt-base)}${unit}</span></div></div>`;
-$('tarjetas').innerHTML=card('P95 de resolución',b.resolucion_p95_min,a.resolucion_p95_min,' min')+card('Tickets pendientes',b.pendientes,a.pendientes)+card('Incumplimiento SLA',b.incumplimiento_resolucion_pct,a.incumplimiento_resolucion_pct,' %')+card('Tickets resueltos',b.resueltos,a.resueltos);
-let max=Math.max(b[k],a[k],1)*1.1;$('subrespuesta').textContent=labels[k]+' · Promedio entre réplicas; menor es mejor';$('grafico_principal').innerHTML='<div class="legend"><span><i class="dot" style="background:#627eaa"></i>Base</span><span><i class="dot" style="background:#65a8ff"></i>Alternativa</span></div>'+barra('Base',b[k],max,'#627eaa')+barra('Alternativa',a[k],max,'#65a8ff');let d=r.diferencia_pareada;$('incertidumbre').textContent=d?.ic95_inf!=null?`Diferencia media pareada: ${num(d.promedio)} · IC95% aprox. [${num(d.ic95_inf)}, ${num(d.ic95_sup)}]`:`Diferencia: ${num(gap)} · Ejecutá 2 o más réplicas para estimar IC.`;
-let rows=[['Pendientes','pendientes',''],['SLA resolución','incumplimiento_resolucion_pct',' %'],['Cola máxima','cola_maxima',''],['P95 respuesta','respuesta_p95_min',' min']];$('grafico_control').innerHTML=rows.map(([name,key,u])=>{let mx=Math.max(b[key],a[key],1)*1.15;return `<div class="subheading" style="margin-top:15px">${name}</div>`+barra('Base',b[key],mx,'#627eaa',u)+barra('Alternativa',a[key],mx,'#65a8ff',u)}).join('');
-$('grafico_recursos').innerHTML=Object.keys(b).filter(x=>x.startsWith('utilizacion_')&&x.endsWith('_pct')).map(k=>{let titulo=labels[k]||k;return `<div class="subheading" style="margin-top:13px">${titulo}</div>`+barra('Base',b[k],100,'#627eaa',' %')+barra('Alternativa',a[k],100,'#65a8ff',' %')}).join('');
-$('tabla').innerHTML=Object.entries(labels).filter(([k])=>k in b).map(([k,n])=>`<tr><td>${n}</td><td>${num(b[k])}</td><td>${num(a[k])}</td><td class="${a[k]<=b[k]?'good':'bad'}">${a[k]-b[k]>0?'+':''}${num(a[k]-b[k])}</td></tr>`).join('');
-let enRiesgo=a.pendientes>b.pendientes+0.5||a.incumplimiento_resolucion_pct>b.incumplimiento_resolucion_pct+0.5;let ic=d?.ic95_inf!=null;let confiable=ic&&(d.ic95_sup<0||d.ic95_inf>0);$('lectura').innerHTML=`<b>Lectura experimental:</b> la alternativa ${good?'reduce':'no reduce'} ${labels[k].toLowerCase()} en ${num(Math.abs(gap))} unidades en promedio.${enRiesgo?' <b>Atención:</b> empeoran pendientes o incumplimientos.':''} ${ic?confiable?'El IC95% de la diferencia no incluye cero.':'El IC95% incluye cero: la mejora no es concluyente con estas réplicas.':'Con una réplica no se puede estimar incertidumbre entre corridas.'} Esto no valida el comportamiento real del banco.`;
-$('advertencias').innerHTML=(r.advertencias||[]).map(x=>'• '+x).join('<br>');$('vacio').classList.add('hide');$('resultados').classList.remove('hide');$('estado').textContent='Resultados · '+(r.origen==='importado'?'Datos cargados':'Datos sintéticos');}
+function pintar(r){if(!r||!r.resumen)return;let b=r.resumen.base,a=r.resumen.alternativa,k=r.indicador||$('indicador').value;let gap=a[k]-b[k],esperaMejora=r.hipotesis!=='demanda',good=esperaMejora?gap<0:gap>0;let card=(titulo,base,alt,unit='',masEsMejor=false)=>`<div class="card"><small>${titulo}</small><div class="big">${num(alt)}${unit}</div><div class="delta">Base ${num(base)}${unit} · <span class="${(masEsMejor?alt>=base:(esperaMejora?alt<=base:alt>=base))?'good':'bad'}">${alt>=base?'+':''}${num(alt-base)}${unit}</span></div></div>`;
+$('tarjetas').innerHTML=card('P95 de resolución',b.resolucion_p95_min,a.resolucion_p95_min,' min')+card('Tickets pendientes',b.pendientes,a.pendientes)+card('Incumplimiento SLA',b.incumplimiento_resolucion_pct,a.incumplimiento_resolucion_pct,' %')+card('Tickets resueltos',b.resueltos,a.resueltos,'',true);
+let max=Math.max(b[k],a[k],1)*1.1;$('subrespuesta').textContent=labels[k]+' · La barra compara el escenario base contra la alternativa';$('grafico_principal').innerHTML='<div class="legend"><span><i class="dot" style="background:var(--serie-suave)"></i>Base</span><span><i class="dot" style="background:var(--serie)"></i>Alternativa</span></div>'+barra('Base',b[k],max,'var(--serie-suave)')+barra('Alternativa',a[k],max,'var(--serie)');let d=r.diferencia_pareada;$('incertidumbre').textContent=d?.ic95_inf!=null?`Diferencia pareada: ${num(d.promedio)} · IC95% con ${d.metodo||'t de Student'} [${num(d.ic95_inf)}, ${num(d.ic95_sup)}]`:`Diferencia: ${num(gap)} · No se estima IC con un lote importado o una réplica.`;
+let rows=[['Pendientes','pendientes',''],['SLA resolución','incumplimiento_resolucion_pct',' %'],['Cola máxima','cola_maxima',''],['P95 respuesta','respuesta_p95_min',' min']];$('grafico_control').innerHTML='<div class="effect-cards">'+rows.map(([name,key,u])=>{let diff=a[key]-b[key],espera=key==='pendientes'||key==='incumplimiento_resolucion_pct'||key==='cola_maxima'||key==='respuesta_p95_min';let favorable=espera?diff<0:diff>0;return `<div class="effect-card"><b>${name}</b><div class="effect-value ${favorable?'good':diff===0?'':'bad'}">${diff>0?'+':''}${num(diff)}${u}</div><small>${favorable?'mejora':'aumenta o no mejora'} respecto del base</small></div>`}).join('')+'</div>';
+$('grafico_recursos').innerHTML='<div class="resource-cards">'+Object.keys(b).filter(x=>x.startsWith('utilizacion_')&&x.endsWith('_pct')).map(k=>{let titulo=labels[k]||k;let valor=a[k];let estado=valor>=85?'Cuello de botella':valor>=70?'Atención':'Margen disponible';return `<div class="effect-card"><b>${titulo}</b><div class="effect-value">${num(valor)} %</div><small>${estado}</small></div>`}).join('')+'</div>';
+$('tabla').innerHTML=Object.entries(labels).filter(([k])=>k in b).map(([k,n])=>`<tr><td>${n}</td><td>${num(b[k])}</td><td>${num(a[k])}</td><td class="${colorDiferencia(k,a[k]-b[k])}">${a[k]-b[k]>0?'+':''}${num(a[k]-b[k])}</td></tr>`).join('');
+let enRiesgo=a.pendientes>b.pendientes+0.5||a.incumplimiento_resolucion_pct>b.incumplimiento_resolucion_pct+0.5;let ic=d?.ic95_inf!=null;let v=r.validacion||{estado:'no_concluyente',criterio:'La evidencia disponible no alcanza para una conclusión firme.'};$('validacion').className='validation '+v.estado;$('validacion').innerHTML=`<b>Resultado: ${v.estado.replaceAll('_',' ')}</b><br>${v.criterio}<br><span class="hint">Esto sostiene o refuta la hipótesis bajo estos supuestos; no valida el modelo real del banco.</span>`;$('lectura').innerHTML=`<b>Lectura experimental:</b> la alternativa ${good?'muestra el cambio esperado en':'no muestra el cambio esperado en'} ${labels[k].toLowerCase()} (${num(Math.abs(gap))} unidades de diferencia).${enRiesgo?' <b>Atención:</b> empeoran pendientes o incumplimientos.':''}`;
+$('advertencias').innerHTML=(r.advertencias||[]).map(x=>'• '+x).join('<br>');$('vacio').classList.add('hide');$('descargar').classList.remove('hide');$('resultados').classList.remove('hide');$('estado').textContent='Resultados · '+(r.origen==='importado'?'Datos cargados':'Datos sintéticos');}
 $('hipotesis').onchange=changeHip;
-$('run').onclick=async()=>{let btn=$('run');btn.disabled=true;btn.textContent='Ejecutando…';$('error').textContent='';try{let r=await request('/api/ejecutar',{configuracion:getConfig(),hipotesis:$('hipotesis').value,magnitud:val('magnitud'),indicador:$('indicador').value});pintar(r);}catch(e){$('error').textContent=e.message;}finally{btn.disabled=false;btn.textContent='▶ Ejecutar comparación';}};
-$('guardar').onclick=()=>{window.location.href='/api/guardar';};
-$('archivo').onchange=async e=>{if(!e.target.files[0])return;try{let datos=JSON.parse(await e.target.files[0].text());let r=await request('/api/cargar',datos);if(r.configuracion)setConfig(r.configuracion);$('fuente').textContent=r.mensaje+' · Fuente importada';if(r.resultado?.resumen)pintar(r.resultado);$('estado').textContent=r.mensaje;}catch(err){$('error').textContent=err.message;}};
-$('limpiar').onclick=async()=>{await request('/api/limpiar',{});$('fuente').textContent='Generación sintética (Poisson / triangular)';$('estado').textContent='Generación sintética activada';};
+$('run').onclick=async()=>{let btn=$('run');btn.disabled=true;btn.textContent='Ejecutando…';$('error').textContent='';try{let r=await request('/api/ejecutar',{configuracion:getConfig(),hipotesis:$('hipotesis').value,magnitud:val('magnitud'),indicador:$('indicador').value});pintar(r);if(innerWidth<1000)$('estado').scrollIntoView({behavior:'smooth',block:'start'});}catch(e){$('error').textContent=e.message;}finally{btn.disabled=false;btn.textContent='▶ Ejecutar simulación';}};
 (async()=>{let x=await fetch('/api/config').then(r=>r.json());cfg=x.configuracion;renderInputs();changeHip();})();
+</script>
+<script>
+(function(){
+const n=(v,d=0)=>v==null||!Number.isFinite(v)?'—':Number(v).toLocaleString('es-AR',{minimumFractionDigits:d,maximumFractionDigits:d});
+const s=(v,d=0)=>{if(v==null)return '—';const t=n(Math.abs(v),d);return (/[1-9]/.test(t)?(v>0?'+':'−'):'')+t;};
+const minuscula=t=>/^[A-Z]\d/.test(t)?t:t[0].toLowerCase()+t.slice(1);
+const equipo=e=>e.replaceAll('_',' ');
+const EXPLICA={
+ 'Menos escalamiento N1':'Es capacitar a N1 para que resuelva parte de lo que hoy escala (25 % menos de escaladas)',
+ 'Refuerzo especialistas':'Es sumar un especialista N2 de aplicaciones',
+ 'Turnos redistribuidos':'Es repartir N1 en partes iguales entre el turno temprano y el tarde',
+ 'Prioridad con envejecimiento':'Es subir de prioridad a los tickets que llevan mucho tiempo esperando'};
+const ACCION={
+ 'Menos escalamiento N1':'capacitar a N1 para que escale menos',
+ 'Refuerzo especialistas':'sumar un especialista N2',
+ 'Turnos redistribuidos':'redistribuir los turnos de N1',
+ 'Prioridad con envejecimiento':'priorizar por tiempo de espera'};
+const COLORES={estable:'var(--estable)',riesgo:'var(--riesgo)',critico:'var(--critico)'};
+const pintados={};
+
+/* ---------- Menú ---------- */
+const PANTALLAS={resumen:'Resumen',alternativas:'Alternativas',demanda:'Puntos críticos',red:'Red neuronal',supuestos:'Supuestos',laboratorio:'Laboratorio'};
+let redibujarLinea=null;
+function mostrarPantalla(enfocar){
+ let id=location.hash.slice(1);if(!PANTALLAS[id])id='resumen';
+ document.querySelectorAll('.pantalla').forEach(p=>{p.hidden=p.id!=='p_'+id;});
+ document.querySelectorAll('.menu nav a').forEach(a=>{if(a.dataset.p===id)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
+ document.title=PANTALLAS[id]+' · Mesa de ayuda bancaria';
+ window.scrollTo(0,0);
+ if(id==='demanda'&&redibujarLinea)redibujarLinea(); // oculto no tenía ancho: se dibuja al mostrarse
+ if(enfocar)$('contenido').focus({preventScroll:true});
+}
+window.addEventListener('hashchange',()=>mostrarPantalla(true));
+mostrarPantalla(false);
+
+/* ---------- Zonas del deslizable, compartidas con la portada ---------- */
+function gradienteZonas(c){
+ const dem=c.filas.map(f=>f.demanda),a=dem[0],b=dem[dem.length-1],pos=d=>100*(d-a)/(b-a);
+ const primero=c.puntos.length?pos(c.puntos[0].demanda):100,sat=c.saturacion!=null?pos(c.saturacion):100;
+ return `linear-gradient(90deg,${COLORES.estable} 0 ${primero}%,${COLORES.riesgo} ${primero}% ${sat}%,${COLORES.critico} ${sat}% 100%)`;
+}
+
+/* ---------- Portada ---------- */
+function pintarPortada(res){
+ const p=res&&res.pregunta,c=res&&res.criticos,r=res&&res.redes;
+ const espera=(preg,tx)=>`<div class="tarjeta pend"><p class="preg">${preg}</p><p class="cargando">${tx}</p></div>`;
+ let t1=espera('¿Qué conviene hacer?','Calculando…'),t2=espera('¿Hasta cuánta demanda aguanta?','En espera…'),t3=espera('¿Hace falta una red neuronal?','En espera…'),frases=[];
+ if(p){
+  const m=p.alternativas.find(a=>a.nombre===p.mejor);
+  if(m){
+   const base=p.base.resolucion_p95_min,alt=base+m.p95;
+   frases.push(`Conviene <b>${ACCION[m.nombre]||m.nombre}</b>: el P95 de resolución baja ${n(-m.p95)} minutos (${n(-100*m.p95/base)} %) sin aumentar el backlog${m.horas_extra>0?'':' ni sumar dotación'}.`);
+   t1=`<a class="tarjeta pos" href="#alternativas"><p class="preg">¿Qué conviene hacer?</p><div class="cifra">${s(m.p95)} min</div><p class="que">${m.nombre}</p><div class="mini"><span>Hoy</span><div class="b" style="width:100%"></div><span>${n(base)}</span><span>Con el cambio</span><div class="b des" style="width:${100*alt/base}%"></div><span>${n(alt)}</span></div><span class="ir">Comparar alternativas →</span></a>`;
+  }else{
+   frases.push('<b>Ninguna alternativa</b> baja los tiempos de forma concluyente sin aumentar el backlog.');
+   t1=`<a class="tarjeta neg" href="#alternativas"><p class="preg">¿Qué conviene hacer?</p><div class="cifra">Sin ganadora</div><p class="que">Ninguna alternativa cumple con claridad</p><span class="ir">Comparar alternativas →</span></a>`;
+  }
+ }
+ if(c){
+  const pri=c.puntos[0],dem=c.filas.map(f=>f.demanda),pos=d=>100*(d-dem[0])/(dem[dem.length-1]-dem[0]);
+  if(pri){
+   frases.push(`El primer punto crítico aparece con <b>${n(100*(pri.demanda-1))} % más de demanda</b>${c.saturacion?`, y la mesa se satura con ${n(100*(c.saturacion-1))} %`:''}.`);
+   t2=`<a class="tarjeta ries" href="#demanda"><p class="preg">¿Hasta cuánta demanda aguanta?</p><div class="cifra">+${n(100*(pri.demanda-1))} %</div><p class="que">${pri.titulo}</p><div class="riel" style="background:${gradienteZonas(c)}">${c.saturacion?`<i style="left:${pos(c.saturacion)}%"></i>`:''}</div><div class="leyenda-riel"><span>Hoy</span>${c.saturacion?`<span>Se satura: +${n(100*(c.saturacion-1))} %</span>`:''}<span>+${n(100*(dem[dem.length-1]-1))} %</span></div><span class="ir">Mover el deslizable →</span></a>`;
+  }else{
+   frases.push(`No aparecen puntos críticos hasta <b>+${n(100*(dem[dem.length-1]-1))} %</b> de demanda.`);
+   t2=`<a class="tarjeta pos" href="#demanda"><p class="preg">¿Hasta cuánta demanda aguanta?</p><div class="cifra">+${n(100*(dem[dem.length-1]-1))} %</div><p class="que">Sin puntos críticos en el rango probado</p><span class="ir">Mover el deslizable →</span></a>`;
+  }
+ }
+ if(r){
+  const R=r.modelos.find(m=>m.modelo.startsWith('Red')),mej=r.modelos.filter(m=>m!==R).reduce((a,b)=>b.AUC>a.AUC?b:a);
+  frases.push(r.se_justifica?'Con estos datos, <b>una red neuronal se justifica</b> para anticipar escalamientos.':'Para anticipar escalamientos, <b>una red neuronal no se justifica</b>.');
+  t3=`<a class="tarjeta ${r.se_justifica?'pos':'neg'}" href="#red"><p class="preg">¿Hace falta una red neuronal?</p><div class="cifra">${r.se_justifica?'Sí':'No'}</div><p class="que">Superó el criterio en ${r.gana} de ${r.historias} historias</p><div class="compara"><span><b>${n(R.AUC,3)}</b>AUC de la red</span><span><b>${n(mej.AUC,3)}</b>${mej.modelo.split(' (')[0]}</span></div><span class="ir">Ver la comparación →</span></a>`;
+ }
+ $('tarjetas_portada').innerHTML=t1+t2+t3;
+ $('frase').innerHTML=frases.length?frases.join(' '):'Calculando la respuesta…';
+ $('tira_supuestos').textContent=`Datos sintéticos · ${p?p.replicas:30} réplicas de ${p?p.dias:5} días · IC 95 %. No predice valores exactos del banco.`;
+}
+
+/* ---------- Alternativas ---------- */
+function pintarPregunta(p){
+ const mejor=p.alternativas.find(a=>a.nombre===p.mejor);
+ let cab;
+ if(mejor){
+  const costo=mejor.horas_extra>0?`, con ${n(mejor.horas_extra)} horas más de dotación en el período`:', sin sumar horas de dotación';
+  const otras=p.alternativas.filter(a=>a.cumple&&a.nombre!==p.mejor);
+  cab=`<div class="respuesta pos"><p class="rotulo">La respuesta</p><p class="titular">${mejor.nombre}</p><p>${EXPLICA[mejor.nombre]||''}. Baja el P95 de resolución ${n(-mejor.p95)} minutos (de ${n(p.base.resolucion_p95_min)} a ${n(p.base.resolucion_p95_min+mejor.p95)}) sin aumentar el backlog${costo}.${otras.length?` También cumple: ${otras.map(a=>a.nombre).join(', ')}.`:''}</p></div>`;
+ }else{
+  cab=`<div class="respuesta neg"><p class="rotulo">La respuesta</p><p class="titular">Ninguna alternativa cumple con claridad</p><p>Con ${p.replicas} réplicas, ninguna baja el P95 de resolución de forma concluyente sin aumentar el backlog.</p></div>`;
+ }
+ const lo=Math.min(0,...p.alternativas.map(a=>a.p95-a.ic_p95)),hi=Math.max(0,...p.alternativas.map(a=>a.p95+a.ic_p95));
+ const margen=(hi-lo)*.04||1,mn=lo-margen,mx=hi+margen,x=v=>100*(v-mn)/(mx-mn);
+ const tick=Math.max(50,Math.ceil((mx-mn)/4/50)*50);
+ let marcas='';for(let v=Math.ceil(mn/tick)*tick;v<=mx;v+=tick)marcas+=v===0?`<span class="cero-et" style="left:${x(v)}%">0 (igual a la base)</span>`:`<span style="left:${x(v)}%">${s(v)}</span>`;
+ const estado=a=>a.nombre===p.mejor?['ok','✓','Mejor opción']:a.cumple?['ok','✓','Cumple']:a.p95-a.ic_p95>0?['mal','✕','Empeora']:a.p95+a.ic_p95<0?['aviso','!','Puede aumentar el backlog']:['neutro','≈','No concluyente'];
+ const filas=p.alternativas.map((a,i)=>{const g=a.nombre===p.mejor?' gana':'',[c,ic,t]=estado(a),tip=`${a.nombre}: ${s(a.p95)} min ± ${n(a.ic_p95)} (IC 95 %)`;
+  return `<div class="fila nombre ${g?'destacada':''} ${i?'':'primera'}">${a.nombre}</div><div class="fila plot" data-tip="${tip}"><div class="pista"><div class="cero" style="left:${x(0)}%"></div><div class="ic${g}" style="left:${x(a.p95-a.ic_p95)}%;width:${x(a.p95+a.ic_p95)-x(a.p95-a.ic_p95)}%"></div><div class="punto${g}" style="left:${x(a.p95)}%"></div></div></div><div class="fila num"><span><span class="solo-angosto">P95</span>${s(a.p95)} ± ${n(a.ic_p95)} min</span></div><div class="fila num"><span><span class="solo-angosto">Backlog</span>${s(a.pendientes,1)} tickets</span></div><div class="fila estado-col"><span class="estado ${c}"><span aria-hidden="true">${ic}</span>${t}</span></div>`;}).join('');
+ $('pregunta').innerHTML=cab+`<h2>Cuánto cambia cada alternativa frente a la operación actual</h2><p class="subtitulo">Hacia la izquierda de la línea, los tiempos bajan. Si la barra cruza la línea, no se puede afirmar que haya cambio. Cada alternativa corre ${p.replicas} veces con la misma demanda que la base.</p>
+ <div class="bosque"><div class="enc">Alternativa</div><div class="enc">Cambio en P95 de resolución (min, IC 95 %)</div><div class="enc num">P95 de resolución</div><div class="enc num">Backlog</div><div class="enc">Resultado</div>${filas}<div class="eje-vacio"></div><div class="escala-fila"><div class="escala">${marcas}</div></div></div>`;
+}
+
+/* ---------- Puntos críticos ---------- */
+let observadorLinea=null;
+function pintarCriticos(c){
+ const F=c.filas,dem=F.map(f=>f.demanda);
+ const atajos=c.puntos.map(p=>`<button class="atajo" data-demanda="${p.demanda}"><b>×${n(p.demanda,1)} · +${n(100*(p.demanda-1))} %</b><span>${p.titulo}</span></button>`).join('');
+ const sat=c.saturacion,criticas=new Set(c.puntos.map(p=>p.demanda));
+ const sub=sat?`Hoy la mesa absorbe la demanda, pero con <b>${n(100*(sat-1))} % más de tickets</b> ya no alcanza a cerrar lo que entra. Mové el deslizable para ver cómo se llega a ese punto.`:`En el rango probado (hasta +${n(100*(dem[dem.length-1]-1))} %) el backlog no supera el criterio de saturación. Mové el deslizable para ver cómo se acerca.`;
+ const equipos=Object.keys(F[0].utilizacion).sort((a,b)=>F[0].utilizacion[b]-F[0].utilizacion[a]);
+ $('criticos').innerHTML=`<p class="lectura" style="min-height:0">${sub}</p>
+ <div class="control"><div class="control-cab"><div><label for="demanda">Demanda respecto de hoy</label><output id="demanda_val" for="demanda"></output></div><span class="sello" id="sello" aria-live="polite"></span></div>
+ <input type="range" id="demanda" min="${dem[0]}" max="${dem[dem.length-1]}" step="0.1" value="${dem[0]}" style="--pista:${gradienteZonas(c)}"><div class="marcas">${dem.map(d=>`<span class="${criticas.has(d)?'critica':''}">×${n(d,1)}</span>`).join('')}</div></div>
+ <div class="atajos">${atajos}</div><p class="lectura" id="lectura_critica"></p><div class="fichas" id="fichas"></div>
+ <div class="dos"><div class="grafico"><h3>Tickets sin resolver al final del período</h3><div class="leyenda"><span><i></i>Backlog simulado</span><span><i class="limite"></i>Límite de saturación (${n(c.umbral_backlog_pct)} % del ingreso diario)</span></div><div id="linea"></div></div>
+ <div><h3>Utilización de cada equipo</h3><p class="subtitulo" style="margin-bottom:0">La línea marca ${n(c.umbral_utilizacion)} %: por encima, el equipo queda sin margen.</p><div id="utilizacion">${equipos.map(e=>`<div class="util" data-e="${e}"><span>${equipo(e)}</span><div class="barra"><div class="relleno" style="width:${Math.min(100,F[0].utilizacion[e])}%"></div><div class="tope" style="left:${c.umbral_utilizacion}%"></div></div><span class="val"></span></div>`).join('')}</div></div></div>`;
+ const rango=$('demanda');
+ function fila(){return F.find(f=>Math.abs(f.demanda-Number(rango.value))<.01);}
+ function dibujarLinea(f){
+  const cont=$('linea');if(!cont||!cont.clientWidth)return;
+  const W=cont.clientWidth,H=W<420?200:230,m={t:12,r:14,b:24,l:34};
+  const ymax=Math.max(...F.map(z=>Math.max(z.pendientes,z.limite_pendientes)))*1.08,X=d=>m.l+(d-dem[0])/(dem[dem.length-1]-dem[0])*(W-m.l-m.r),Y=v=>H-m.b-v/ymax*(H-m.t-m.b);
+  const paso=[5,10,20,25,50,100,200,500].find(p=>ymax/p<=5)||1000;let g='';
+  for(let v=0;v<=ymax;v+=paso)g+=`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--rejilla)"/><text x="${m.l-6}" y="${Y(v)+4}" text-anchor="end">${n(v)}</text>`;
+  const camino=k=>F.map((z,i)=>(i?'L':'M')+X(z.demanda).toFixed(1)+' '+Y(z[k]).toFixed(1)).join('');
+  const zonas=F.map((z,i)=>{const a=i?(X(F[i-1].demanda)+X(z.demanda))/2:m.l,b=i<F.length-1?(X(F[i+1].demanda)+X(z.demanda))/2:W-m.r;return `<rect class="zona" data-d="${z.demanda}" data-tip="Demanda ×${n(z.demanda,1)}: ${n(z.pendientes,1)} tickets (límite ${n(z.limite_pendientes,1)})" x="${a}" y="0" width="${b-a}" height="${H-m.b}" fill="transparent" style="cursor:pointer"/>`;}).join('');
+  const ancla=X(f.demanda)>W-60?'end':X(f.demanda)<m.l+30?'start':'middle';
+  const cadaTanto=W<420?2:1;
+  cont.innerHTML=`<svg viewBox="0 0 ${W} ${H}" height="${H}" role="img" aria-label="Backlog según la demanda; en ×${n(f.demanda,1)} quedan ${n(f.pendientes,1)} tickets">${g}
+  ${F.map((z,i)=>i%cadaTanto?'':`<text x="${X(z.demanda)}" y="${H-6}" text-anchor="middle">×${n(z.demanda,1)}</text>`).join('')}
+  <path d="${camino('limite_pendientes')}" fill="none" stroke="var(--texto3)" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <path d="${camino('pendientes')}" fill="none" stroke="var(--serie)" stroke-width="2" stroke-linejoin="round"/>
+  <line x1="${X(f.demanda)}" x2="${X(f.demanda)}" y1="${m.t}" y2="${H-m.b}" stroke="var(--texto3)"/>
+  <circle cx="${X(f.demanda)}" cy="${Y(f.pendientes)}" r="5.5" fill="var(--serie)" stroke="var(--superficie)" stroke-width="2"/>
+  <text class="fuerte" x="${X(f.demanda)}" y="${Math.max(Y(f.pendientes)-11,12)}" text-anchor="${ancla}" dx="${ancla==='end'?-8:ancla==='start'?8:0}">${n(f.pendientes,1)}</text>${zonas}</svg>`;
+  cont.querySelectorAll('.zona').forEach(r=>r.onclick=()=>{rango.value=r.dataset.d;actualizar();});
+ }
+ function actualizar(){
+  const f=fila(),d=f.demanda,cruzados=c.puntos.filter(p=>p.demanda<=d+.001),saturada=f.pendientes>f.limite_pendientes;
+  const atencion=Math.max(...Object.values(f.utilizacion))>=c.umbral_utilizacion||f.sla>c.umbral_sla;
+  $('demanda_val').textContent=d===1?'×1,0 (hoy)':`×${n(d,1)} (+${n(100*(d-1))} %)`;
+  $('sello').className='sello '+(saturada?'mal':atencion?'aviso':'ok');$('sello').innerHTML=saturada?'<span aria-hidden="true">✕</span> Saturada':atencion?'<span aria-hidden="true">!</span> En riesgo':'<span aria-hidden="true">✓</span> Estable';
+  const ultimo=cruzados[cruzados.length-1],exacto=c.puntos.filter(p=>Math.abs(p.demanda-d)<.01),proximo=c.puntos.find(p=>p.demanda>d+.001);
+  $('lectura_critica').innerHTML=exacto.length?exacto.map(p=>`<b>${p.titulo}.</b> ${p.detalle}`).join(' '):ultimo?`<b>Ya se cruzó: ${minuscula(ultimo.titulo)}.</b> ${proximo?`El próximo punto crítico está en ×${n(proximo.demanda,1)}.`:'No quedan más puntos críticos en el rango probado.'}`:`<b>Sin puntos críticos todavía.</b> ${c.puntos.length?`El primero aparece en ×${n(c.puntos[0].demanda,1)}: ${minuscula(c.puntos[0].titulo)}.`:''}`;
+  document.querySelectorAll('.atajo').forEach(b=>{const on=Math.abs(Number(b.dataset.demanda)-d)<.01;b.classList.toggle('activo',on);b.setAttribute('aria-pressed',on);});
+  const b0=F[0],dif=(z,dd=0,u='')=>d===1?'Situación actual':`Hoy ${n(z,dd)}${u}`;
+  $('fichas').innerHTML=[['Tickets pendientes',n(f.pendientes,1),dif(b0.pendientes,1)],['P95 de resolución',n(f.p95)+' min',dif(b0.p95,0,' min')],['Incumplimiento de SLA',n(f.sla,1)+' %',dif(b0.sla,1,' %')],['Cola máxima',n(f.cola_maxima,1),dif(b0.cola_maxima,1)]].map(([t,v,e])=>`<div class="ficha"><small>${t}</small><strong>${v}</strong><em>${e}</em></div>`).join('');
+  document.querySelectorAll('#utilizacion .util').forEach(u=>{const e=u.dataset.e,v=f.utilizacion[e],alto=v>=c.umbral_utilizacion;u.dataset.tip=`${equipo(e)}: ${n(v,1)} % en demanda ×${n(d,1)}`;const r=u.querySelector('.relleno');r.style.width=Math.min(100,v)+'%';r.classList.toggle('alto',alto);u.querySelector('.val').textContent=`${n(v)} %${alto?' !':''}`;});
+  dibujarLinea(f);
+ }
+ rango.oninput=actualizar;
+ document.querySelectorAll('.atajo').forEach(b=>b.onclick=()=>{rango.value=b.dataset.demanda;actualizar();});
+ redibujarLinea=()=>dibujarLinea(fila());
+ // Vuelve a dibujar cuando cambia el ancho (girar el celular, achicar la ventana)
+ if(observadorLinea)observadorLinea.disconnect();
+ let anchoLinea=0;
+ observadorLinea=new ResizeObserver(()=>{const w=$('linea').clientWidth;if(w&&w!==anchoLinea){anchoLinea=w;setTimeout(()=>dibujarLinea(fila()),0);}});
+ observadorLinea.observe($('linea'));
+ actualizar();
+}
+
+/* ---------- Red neuronal ---------- */
+function pintarRedes(r){
+ const orden=r.modelos,R=orden.find(m=>m.modelo.startsWith('Red')),simples=orden.filter(m=>m!==R),mejor=simples.reduce((a,b)=>b.AUC>a.AUC?b:a);
+ const dif=R.AUC-mejor.AUC,techo=r.techo['con datos al abrir'],techoC=r.techo['conociendo la complejidad'];
+ const cab=r.se_justifica?`<div class="respuesta pos"><p class="rotulo">La respuesta</p><p class="titular">Sí, con estos datos la red se justifica</p>`:`<div class="respuesta neg"><p class="rotulo">La respuesta</p><p class="titular">No, la red neuronal no se justifica</p>`;
+ const texto=`La red logra un AUC de ${n(R.AUC,3)}, contra ${n(mejor.AUC,3)} de ${mejor.modelo.split(' (')[0].toLowerCase()} (${s(dif,3)}). Superó el criterio en ${r.gana} de ${r.historias} historias simuladas.`;
+ const vals=r.auc_por_historia.map(x=>x.AUC).concat([techo,techoC,.5]),mn=Math.min(...vals)-.01,mx=Math.max(...vals)+.01,x=v=>100*(v-mn)/(mx-mn);
+ const refs=`<div class="referencia azar" style="left:${x(.5)}%"></div><div class="referencia" style="left:${x(techo)}%"></div><div class="referencia" style="left:${x(techoC)}%"></div>`;
+ const filas=orden.map(m=>{const es=m===R,hist=r.auc_por_historia.filter(h=>h.modelo===m.modelo);return `<div class="fila" style="${es?'font-weight:650':''}">${m.modelo.replace(' (baseline)','').replace(' 32-16','')}</div><div class="fila" data-tip="${m.modelo}: AUC promedio ${n(m.AUC,3)}; por historia ${hist.map(h=>n(h.AUC,3)).join(', ')}"><div class="pista auc">${refs}${hist.map(h=>`<div class="punto-h" style="left:${x(h.AUC)}%"></div>`).join('')}<div class="punto media" style="left:${x(m.AUC)}%"></div></div></div><div class="fila val">${n(m.AUC,3)}</div>`;}).join('');
+ $('redes').innerHTML=cab+`<p>${texto}</p></div><h2>Capacidad de cada modelo para anticipar el escalamiento (AUC)</h2><p class="subtitulo">Más a la derecha es mejor. 0,5 equivale a tirar una moneda. El punto azul es el promedio; los puntos chicos, cada historia simulada.</p>
+ <div class="modelos">${filas}<div></div><div class="escala-auc"><span style="left:${x(.5)}%">Azar<br>0,500</span><span style="left:${x(techo)}%">Techo al abrir<br>${n(techo,3)}</span><span class="etiqueta-baja" style="left:${x(techoC)}%">Con complejidad<br>${n(techoC,3)}</span></div><div></div></div>
+ <div class="claves"><div><h3>Por qué no alcanza</h3><p>Con lo que se sabe al abrir el ticket, el mejor AUC sostenible ronda ${n(techo,3)}; si una historia suelta lo pasa, es ruido de la muestra. ${techo-Math.max(...orden.map(m=>m.AUC))<=.015?'Los modelos simples ya están prácticamente en ese techo, así que no queda margen para una red.':'El margen que queda hasta el techo es pequeño.'}</p></div>
+ <div><h3>Qué se exigió a la red</h3><p>Mejorar el AUC al menos ${n(r.mejora_minima,2)} con un intervalo de confianza por encima de 0, en la mayoría de ${r.historias} historias de ${r.dias} días.</p></div>
+ <div><h3>Límite de esta conclusión</h3><p>En el simulador, el escalamiento depende solo de categoría y complejidad, así que no hay patrones ocultos que una red pueda descubrir. Con datos reales la respuesta podría cambiar: se puede repetir con <code>python estudio_redes.py --historico tickets.csv</code>.</p></div></div>`;
+}
+
+/* ---------- Supuestos ---------- */
+function pintarSupuestos(res){
+ const p=res&&res.pregunta,c=res&&res.criticos,r=res&&res.redes;
+ const items=[
+  ['Datos','demanda, tiempos de atención, probabilidades y SLA son valores supuestos, no medidos en un banco.'],
+  ['Azar','llegadas por hora con distribución de Poisson y tiempos de atención triangulares.'],
+  ['Experimento',`${p?p.replicas:30} réplicas de ${p?p.dias:5} días (más 1 de calentamiento), con las mismas semillas en cada alternativa e IC 95 % con t de Student.`],
+  ['Medida de tiempo','P95 de resolución en minutos corridos, solo de tickets cerrados. Por eso se mira junto con el backlog.'],
+  ['“Sin aumentar el backlog”','el intervalo del cambio en pendientes no puede quedar por encima de 0.'],
+  ['Puntos críticos',c?`criterios ilustrativos: utilización ≥ ${n(c.umbral_utilizacion)} %, incumplimiento de SLA > ${n(c.umbral_sla)} % y backlog final > ${n(c.umbral_backlog_pct)} % del ingreso diario.`:'criterios ilustrativos de utilización, SLA y backlog.'],
+  ['Costo','se aproxima con horas de dotación. No incluye lo que costaría capacitar a N1 ni si esa capacitación logra el 25 %.'],
+  ['Red neuronal',`usa solo lo conocido al abrir el ticket (categoría, prioridad, hora, día). La complejidad queda afuera porque se conoce después${r?`. Partición temporal 60/20/20 con ${n(r.tamanos.entrenamiento+r.tamanos.validacion+r.tamanos.prueba)} tickets por historia`:''}.`]];
+ $('supuestos').innerHTML=items.map(([a,b])=>`<li><b>${a}:</b> ${b}</li>`).join('');
+}
+
+/* ---------- Estado general ---------- */
+function pintarResumen(x){
+ const res=x.resultado;
+ pintarSupuestos(res);pintarPortada(res);
+ const huella=res&&res.huella;
+ for(const [clave,fn] of [['pregunta',pintarPregunta],['criticos',pintarCriticos],['redes',pintarRedes]]){
+  if(res&&res[clave]&&pintados[clave]!==huella){fn(res[clave]);pintados[clave]=huella;}
+ }
+ const aviso=$('aviso_calculo'),calculando=x.estado==='ejecutando';
+ $('recalcular').disabled=calculando;
+ aviso.hidden=!(calculando||x.estado==='error');aviso.classList.toggle('error',x.estado==='error');
+ aviso.textContent=calculando?(x.etapa||'Calculando')+'… Las respuestas aparecen a medida que están listas.':x.estado==='error'?'No se pudo calcular: '+x.error:'';
+ $('pie_estado').textContent=calculando?'Calculando…':x.estado==='error'?'El último cálculo falló.':'Resultados guardados. Solo se recalculan si cambia el modelo.';
+ if(x.estado==='error'&&!(res&&res.pregunta))$('pregunta').innerHTML=`<p class="error">No se pudo calcular: ${x.error}</p>`;
+}
+async function consultar(){
+ try{const x=await fetch('/api/resumen').then(r=>r.json());pintarResumen(x);if(x.estado==='ejecutando')setTimeout(consultar,1500);}
+ catch(e){const a=$('aviso_calculo');a.hidden=false;a.classList.add('error');a.textContent='Sin conexión con el servidor. Volvé a ejecutar python dashboard_tickets_banco.py';}
+}
+$('recalcular').onclick=async()=>{
+ try{await request('/api/recalcular',{});for(const k of Object.keys(pintados))delete pintados[k];
+  $('pregunta').innerHTML='<p class="cargando">Calculando…</p>';$('criticos').innerHTML='<p class="cargando">Se calcula después de la pregunta principal…</p>';$('redes').innerHTML='<p class="cargando">Se calcula al final. Es la parte más lenta.</p>';consultar();}
+ catch(e){$('pie_estado').textContent=e.message;}
+};
+
+/* ---------- Tooltip (mouse y toque) ---------- */
+const tip=$('tip');
+function moverTip(e){const t=e.target.closest&&e.target.closest('[data-tip]');if(!t){tip.style.opacity=0;return;}tip.textContent=t.dataset.tip;tip.style.opacity=1;const w=tip.offsetWidth;tip.style.left=Math.max(8,Math.min(innerWidth-w-8,e.clientX+12))+'px';tip.style.top=Math.max(8,e.clientY-tip.offsetHeight-10)+'px';}
+document.addEventListener('pointermove',moverTip);document.addEventListener('pointerdown',moverTip);window.addEventListener('scroll',()=>{tip.style.opacity=0;},{passive:true});
+consultar();
+})();
 </script></body></html>
