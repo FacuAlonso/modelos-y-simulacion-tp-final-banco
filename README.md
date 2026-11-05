@@ -2,7 +2,7 @@
 
 El proyecto tiene dos formas equivalentes de uso:
 
-- **Entrega independiente:** [simulacion_tickets_banco.py](simulacion_tickets_banco.py) contiene el modelo, la generación de tickets, la simulación, la verificación y la salida por consola. Se puede entregar y ejecutar sin el servidor web.
+- **Motor independiente:** [simulacion_tickets_banco.py](simulacion_tickets_banco.py) contiene el modelo, la generación de tickets, la simulación, la verificación y la salida por consola.
 - **Laboratorio web:** [dashboard_tickets_banco.py](dashboard_tickets_banco.py) sirve una interfaz para cambiar parámetros, formular hipótesis, comparar escenarios y descargar el experimento completo.
 
 ## Ejecución
@@ -72,8 +72,3 @@ incluso si Python se ejecuta con optimización. Para ejecutar las pruebas:
 python simulacion_tickets_banco.py --probar
 python -O simulacion_tickets_banco.py --probar
 ```
-
-Estas pruebas cubren prioridad, FIFO, escalamiento, tiempos de atención y
-continuidad del trabajo entre turnos. Una verificación correcta indica que el
-programa respeta sus reglas internas; no demuestra que los supuestos representen
-la operación real del banco.
