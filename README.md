@@ -14,6 +14,17 @@ python dashboard_tickets_banco.py
 
 Abrí `http://127.0.0.1:8765` si no se abre automáticamente. El dashboard utiliza únicamente la biblioteca estándar de Python para servir la interfaz web; no requiere Streamlit ni servicios externos.
 
+La página se adapta a computadora, tablet y celular. Un menú (barra lateral, o barra inferior en pantallas angostas) lleva a cada pantalla:
+
+1. **Resumen:** la pregunta principal y las tres respuestas de un vistazo.
+2. **Alternativas:** qué alternativa reduce mejor los tiempos sin aumentar el backlog, con un gráfico que compara cada una contra la base.
+3. **Puntos críticos:** un deslizable de demanda (×1,0 a ×1,8) muestra dónde aparece el primer cuello de botella, dónde se incumple el SLA y dónde se satura la mesa.
+4. **Red neuronal:** si conviene sumarla para anticipar el escalamiento. Usa [estudio_redes.py](estudio_redes.py), que también se ejecuta solo con `python estudio_redes.py` (admite `--historico tickets.csv`).
+5. **Supuestos** bajo los que valen esas respuestas.
+6. **Laboratorio:** para probar otra hipótesis o cambiar parámetros.
+
+La primera ejecución calcula todo en segundo plano (unos minutos) y muestra cada respuesta apenas está lista. El resultado queda en `resultados_tickets_banco/resumen_dashboard.json` y solo se recalcula si cambia el modelo o se pulsa **Recalcular resultados**. Si el puerto 8765 está ocupado, el servidor usa el siguiente libre y lo informa por consola.
+
 El motor sigue funcionando de manera independiente:
 
 ```bash
@@ -28,10 +39,12 @@ La última variante genera `comparacion_escenarios.png`, `evolucion_colas.png` y
 
 ## Funcionalidades
 
+La pantalla **Laboratorio** permite probar otra hipótesis:
+
 - **Hipótesis**: reducción de escaladas N1, más especialistas N2, redistribución de turnos N1, reducción de servicio, mayor demanda y prioridad con envejecimiento.
 - **Parámetros**: tasas por hora, distribuciones de llegadas (Poisson o determinística), servicio (triangular o fijo), dotación/turnos, escalamiento, reapertura, horizonte, réplicas y semilla.
-- **Salida principal**: P95, tickets pendientes, incumplimiento SLA y resueltos. Dos gráficos breves comparan el objetivo y efectos secundarios; utilización identifica cuellos de botella.
-- **Persistencia**: Guardar JSON con entrada sintética, resultados de cada ticket, réplicas, hipótesis, configuración y resultados. Cargar JSON recupera los datos y un resultado anterior cuando esté disponible.
+- **Salida**: P95, tickets pendientes, incumplimiento SLA y resueltos, con efectos secundarios y utilización por equipo.
+- **Persistencia**: descarga un JSON con entrada sintética, resultados de cada ticket, réplicas, hipótesis, configuración y resultados.
 - **Comparabilidad**: semillas emparejadas en escenarios generados; cada escenario recibe características aleatorias reproducibles. Importar datos fija exactamente el mismo lote para todas las réplicas y escenarios. En ese modo, los IC entre réplicas no miden incertidumbre de demanda y no se recomienda interpretar las 30 repeticiones como 30 observaciones independientes.
 
 ## Precauciones y alcance
@@ -49,11 +62,6 @@ IC artificial.
 También se puede elegir el P95 de resolución incluyendo tickets abiertos. Es
 una medida conservadora: para un ticket todavía abierto se usa el tiempo
 transcurrido hasta el final del horizonte.
-
-El dashboard ofrece casos predeterminados para comenzar rápidamente: operación
-normal, pico de demanda, incidente masivo, saturación de N2 y prioridad crítica.
-Se pueden cargar para inspeccionar sus parámetros o ejecutar directamente con
-**Cargar y ejecutar**.
 
 ## Verificación del motor
 

@@ -1,25 +1,38 @@
 """Dashboard web local para experimentar con la simulación de mesa de ayuda."""
 import copy
+import hashlib
 import json
 import math
+import os
 import webbrowser
 from dataclasses import asdict, replace
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from threading import Timer
+from threading import Lock, Thread, Timer
 from urllib.parse import urlparse
 
 import numpy as np
 import pandas as pd
 from simulacion_tickets_banco import (
     Configuracion, Ticket, generar_tickets, simular, validar_config, EQUIPOS,
+    diferencia_pareada, ejecutar_experimentos, escenarios, semiamplitud_ic, veredicto,
 )
+from estudio_redes import ejecutar_estudio
 
 ESTADO = {"paquete": None, "entrada_cargada": None, "nombre_entrada": None}
+RESUMEN = {"estado": "inactivo", "etapa": None, "resultado": None, "error": None}
+RESUMEN_LOCK = Lock()
 BASE = Path(__file__).parent
+CACHE_RESUMEN = BASE / "resultados_tickets_banco" / "resumen_dashboard.json"
+MULTIPLOS_DEMANDA = (1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8)
+UMBRAL_UTILIZACION = 85.0       # criterio ilustrativo de cuello de botella
+UMBRAL_BACKLOG = 0.10           # backlog final mayor al 10 % de los ingresos diarios
+UMBRAL_SLA = 5.0                # criterio ilustrativo de incumplimiento de SLA de resolución
 
 
 def limpiar(obj):
+    if isinstance(obj, np.bool_):
+        return bool(obj)
     if isinstance(obj, (np.integer,)):
         return int(obj)
     if isinstance(obj, (np.floating, float)):
@@ -194,7 +207,136 @@ def ejecutar(peticion):
         "magnitud", "advertencias", "origen", "replicas")}
 
 
+def responder_pregunta(c):
+    """P1: qué alternativa reduce más el P95 de resolución sin aumentar el backlog (mismo criterio del informe)."""
+    df, resumen = ejecutar_experimentos(c, escenarios(c))
+    fila = resumen.set_index("escenario")
+    alternativas = []
+    for nombre in fila.index:
+        if nombre in ("Base", "Estrés +30% e incidente"):
+            continue
+        p95, ic_p95 = diferencia_pareada(df, nombre, "resolucion_p95_min")
+        pendientes, ic_pendientes = diferencia_pareada(df, nombre, "pendientes")
+        critica, ic_critica = diferencia_pareada(df, nombre, "resolucion_p95_critica_min")
+        alternativas.append({
+            "nombre": nombre, "p95": p95, "ic_p95": ic_p95, "pendientes": pendientes, "ic_pendientes": ic_pendientes,
+            "critica": critica, "ic_critica": ic_critica, "veredicto": veredicto(p95, ic_p95),
+            "horas_extra": float(fila.loc[nombre, "horas_dotacion"] - fila.loc["Base", "horas_dotacion"]),
+            "cumple": bool(p95 + ic_p95 < 0 and pendientes - ic_pendientes <= 0),
+        })
+    alternativas.sort(key=lambda x: x["p95"])
+    campos = ("resolucion_p95_min", "pendientes", "incumplimiento_resolucion_pct", "horas_dotacion")
+    return {
+        "alternativas": alternativas,
+        "mejor": next((x["nombre"] for x in alternativas if x["cumple"]), None),
+        "base": {k: float(fila.loc["Base", k]) for k in campos},
+        "estres": {k: float(fila.loc["Estrés +30% e incidente", k]) for k in campos},
+        "replicas": c.replicas, "dias": c.dias,
+    }
+
+
+def buscar_puntos_criticos(c):
+    """P7: barre la demanda y marca dónde se cruza cada criterio."""
+    columnas_util = {e: f"utilizacion_{e}_pct" for e in EQUIPOS}
+    filas = []
+    for m in MULTIPLOS_DEMANDA:
+        cfg = replace(c, factor_demanda=c.factor_demanda * m)
+        corridas = [simular(cfg, generar_tickets(cfg, c.semilla + r * 101))[0] for r in range(c.replicas)]
+        media = lambda k: float(np.nanmean([x[k] for x in corridas]))
+        filas.append({
+            "demanda": m, "pendientes": media("pendientes"),
+            "ic_pendientes": semiamplitud_ic([x["pendientes"] for x in corridas]),
+            "limite_pendientes": UMBRAL_BACKLOG * media("ingresados") / c.dias,
+            "p95": media("resolucion_p95_min"), "p95_abiertos": media("resolucion_p95_con_abiertos_min"),
+            "sla": media("incumplimiento_resolucion_pct"), "cola_maxima": media("cola_maxima"),
+            "utilizacion": {e: media(k) for e, k in columnas_util.items()},
+        })
+    puntos = []
+    primera_util = next((f for f in filas if max(f["utilizacion"].values()) >= UMBRAL_UTILIZACION), None)
+    if primera_util:
+        equipo = max(primera_util["utilizacion"], key=primera_util["utilizacion"].get)
+        puntos.append({"demanda": primera_util["demanda"], "tipo": "cuello",
+                       "titulo": f"{equipo.replace('_', ' ')} llega a {UMBRAL_UTILIZACION:.0f} % de utilización",
+                       "detalle": "Primer cuello de botella: el equipo queda sin margen para absorber picos."})
+    primera_sla = next((f for f in filas if f["sla"] > UMBRAL_SLA), None)
+    if primera_sla:
+        puntos.append({"demanda": primera_sla["demanda"], "tipo": "sla",
+                       "titulo": f"El incumplimiento de SLA supera {UMBRAL_SLA:.0f} %",
+                       "detalle": "Los tiempos de resolución empiezan a incumplir el compromiso de forma visible."})
+    primera_sat = next((f for f in filas if f["pendientes"] > f["limite_pendientes"]), None)
+    if primera_sat:
+        puntos.append({"demanda": primera_sat["demanda"], "tipo": "saturacion",
+                       "titulo": "La mesa se satura",
+                       "detalle": f"El backlog final supera {100 * UMBRAL_BACKLOG:.0f} % de los ingresos diarios: "
+                                  "la demanda deja de absorberse dentro del horizonte."})
+    puntos.sort(key=lambda x: x["demanda"])
+    return {"filas": filas, "puntos": puntos, "saturacion": primera_sat["demanda"] if primera_sat else None,
+            "umbral_utilizacion": UMBRAL_UTILIZACION, "umbral_backlog_pct": 100 * UMBRAL_BACKLOG,
+            "umbral_sla": UMBRAL_SLA}
+
+
+def huella_resumen(c):
+    """El resumen guardado solo vale si no cambiaron el modelo ni los parámetros."""
+    h = hashlib.sha256(json.dumps(asdict(c), sort_keys=True).encode("utf-8"))
+    for nombre in ("simulacion_tickets_banco.py", "estudio_redes.py"):
+        h.update((BASE / nombre).read_bytes())
+    return h.hexdigest()
+
+
+def calcular_resumen(c=None):
+    """Publica cada parte apenas está lista, para que la página responda lo antes posible."""
+    c = c or Configuracion()
+    parcial = {"huella": huella_resumen(c)}
+
+    def etapa(texto):
+        with RESUMEN_LOCK:
+            RESUMEN["etapa"] = texto
+
+    def publicar(clave, valor):
+        parcial[clave] = limpiar(valor)
+        with RESUMEN_LOCK:
+            RESUMEN["resultado"] = dict(parcial)
+
+    try:
+        etapa("Comparando las alternativas contra la base")
+        publicar("pregunta", responder_pregunta(c))
+        etapa("Buscando los puntos críticos de demanda")
+        publicar("criticos", buscar_puntos_criticos(c))
+        etapa("Evaluando la red neuronal (la parte más lenta)")
+        publicar("redes", ejecutar_estudio(c=c, avisar=etapa))
+        CACHE_RESUMEN.parent.mkdir(parents=True, exist_ok=True)
+        CACHE_RESUMEN.write_text(json.dumps(parcial, ensure_ascii=False), encoding="utf-8")
+        with RESUMEN_LOCK:
+            RESUMEN.update(estado="listo", etapa=None, error=None)
+    except Exception as exc:
+        with RESUMEN_LOCK:
+            RESUMEN.update(estado="error", etapa=None, error=str(exc))
+
+
+def iniciar_resumen(forzar=False):
+    """Usa el resumen guardado si sigue vigente; si no, lo calcula en segundo plano."""
+    c = Configuracion()
+    with RESUMEN_LOCK:
+        if RESUMEN["estado"] == "ejecutando":
+            raise ValueError("Ya hay un cálculo en curso")
+        if not forzar and CACHE_RESUMEN.exists():
+            try:
+                guardado = json.loads(CACHE_RESUMEN.read_text(encoding="utf-8"))
+                if guardado.get("huella") == huella_resumen(c):
+                    RESUMEN.update(estado="listo", etapa=None, resultado=guardado, error=None)
+                    return
+            except (OSError, ValueError):
+                pass
+        RESUMEN.update(estado="ejecutando", etapa="Iniciando", resultado=None, error=None)
+    Thread(target=calcular_resumen, args=(c,), daemon=True).start()
+
+
 class Servidor(BaseHTTPRequestHandler):
+    def log_message(self, formato, *args):
+        # http.server escribe cada pedido en stderr. Si la terminal que lanzó el servidor ya no
+        # existe, esa escritura falla antes de responder y el navegador ve ERR_EMPTY_RESPONSE.
+        pass
+
     def responder(self, estado, objeto, tipo="application/json; charset=utf-8", adjunto=None):
         cuerpo = objeto if isinstance(objeto, bytes) else json.dumps(objeto, ensure_ascii=False).encode("utf-8")
         self.send_response(estado)
@@ -221,6 +363,10 @@ class Servidor(BaseHTTPRequestHandler):
             p = ESTADO["paquete"]
             self.responder(200, {"cargado": ESTADO["nombre_entrada"],
                                    "resultado": p and {k: p.get(k) for k in ("resumen", "diferencia_pareada", "validacion", "indicador", "advertencias", "origen", "replicas")}})
+        elif ruta == "/api/resumen":
+            with RESUMEN_LOCK:
+                copia = dict(RESUMEN)
+            self.responder(200, copia)
         else:
             self.responder(404, {"error": "No encontrado"})
 
@@ -233,6 +379,9 @@ class Servidor(BaseHTTPRequestHandler):
             ruta = urlparse(self.path).path
             if ruta == "/api/ejecutar":
                 salida = ejecutar(datos)
+            elif ruta == "/api/recalcular":
+                iniciar_resumen(forzar=True)
+                salida = {"estado": "ejecutando"}
             elif ruta == "/api/cargar":
                 if datos.get("formato") != "mesa_ayuda_v2":
                     raise ValueError("Se espera un experimento mesa_ayuda_v2")
@@ -259,18 +408,35 @@ class Servidor(BaseHTTPRequestHandler):
             self.responder(500, {"error": f"Error de simulación: {exc}"})
 
 
+def crear_servidor(puerto, intentos=10):
+    # En Windows, SO_REUSEADDR deja a varios procesos escuchar en el mismo puerto y el pedido puede
+    # llegarle a un servidor viejo. Sin esa opción, un puerto ocupado se detecta de inmediato.
+    ThreadingHTTPServer.allow_reuse_address = os.name != "nt"
+    for candidato in range(puerto, puerto + intentos):
+        try:
+            return ThreadingHTTPServer(("127.0.0.1", candidato), Servidor)
+        except OSError:
+            continue
+    raise SystemExit(f"No hay puertos libres entre {puerto} y {puerto + intentos - 1}")
+
+
 def main():
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("--puerto", type=int, default=8765)
     parser.add_argument("--sin-navegador", action="store_true")
     args = parser.parse_args()
-    direccion = f"http://127.0.0.1:{args.puerto}"
+    servidor = crear_servidor(args.puerto)
+    puerto = servidor.server_address[1]
+    direccion = f"http://127.0.0.1:{puerto}"
+    if puerto != args.puerto:
+        print(f"El puerto {args.puerto} está ocupado por otro proceso: se usa el {puerto}.")
     print(f"Dashboard de mesa de ayuda: {direccion}")
     print("Presioná Ctrl+C para cerrar")
+    iniciar_resumen()
     if not args.sin_navegador:
         Timer(0.8, lambda: webbrowser.open(direccion)).start()
-    ThreadingHTTPServer(("127.0.0.1", args.puerto), Servidor).serve_forever()
+    servidor.serve_forever()
 
 
 if __name__ == "__main__":
