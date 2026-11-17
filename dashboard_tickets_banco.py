@@ -18,6 +18,7 @@ from simulacion_tickets_banco import (
     diferencia_pareada, ejecutar_experimentos, escenarios, semiamplitud_ic, veredicto,
 )
 from estudio_redes import ejecutar_estudio
+from estudio_decisiones import ejecutar_estudio as ejecutar_estudio_decisiones
 
 ESTADO = {"paquete": None, "entrada_cargada": None, "nombre_entrada": None}
 RESUMEN = {"estado": "inactivo", "etapa": None, "resultado": None, "error": None}
@@ -278,7 +279,7 @@ def buscar_puntos_criticos(c):
 def huella_resumen(c):
     """El resumen guardado solo vale si no cambiaron el modelo ni los parámetros."""
     h = hashlib.sha256(json.dumps(asdict(c), sort_keys=True).encode("utf-8"))
-    for nombre in ("simulacion_tickets_banco.py", "estudio_redes.py"):
+    for nombre in ("simulacion_tickets_banco.py", "estudio_redes.py", "estudio_decisiones.py"):
         h.update((BASE / nombre).read_bytes())
     return h.hexdigest()
 
@@ -300,6 +301,8 @@ def calcular_resumen(c=None):
     try:
         etapa("Comparando las alternativas contra la base")
         publicar("pregunta", responder_pregunta(c))
+        etapa("Evaluando SLA, costos, estrés, sensibilidad y gemelo digital")
+        publicar("decisiones", ejecutar_estudio_decisiones(c, replicas=12, dias=3))
         etapa("Buscando los puntos críticos de demanda")
         publicar("criticos", buscar_puntos_criticos(c))
         etapa("Evaluando la red neuronal (la parte más lenta)")
@@ -379,6 +382,13 @@ class Servidor(BaseHTTPRequestHandler):
             ruta = urlparse(self.path).path
             if ruta == "/api/ejecutar":
                 salida = ejecutar(datos)
+            elif ruta == "/api/decisiones":
+                config = configurar(datos.get("configuracion", {}))
+                reps = int(datos.get("replicas", 12))
+                dias = int(datos.get("dias", 3))
+                if not (2 <= reps <= 50 and 1 <= dias <= 15):
+                    raise ValueError("Para decisiones: 2-50 réplicas y 1-15 días")
+                salida = limpiar(ejecutar_estudio_decisiones(config, replicas=reps, dias=dias))
             elif ruta == "/api/recalcular":
                 iniciar_resumen(forzar=True)
                 salida = {"estado": "ejecutando"}
